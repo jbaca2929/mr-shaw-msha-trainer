@@ -3,9 +3,12 @@ import os
 import openai
 from fpdf import FPDF
 import base64
+from openai import OpenAI
 
 # Set API key securely from environment
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
+
 
 # Initialize session state for chat
 if "messages" not in st.session_state:
@@ -20,7 +23,7 @@ st.caption("Powered by OpenAI. Built with Certified MSHA Instructors.")
 mine_type = st.selectbox("Select your mine type:", ["Part 46 (Sand & Gravel)", "Part 48 Surface", "Part 48 Underground"])
 
 # Input
-question = st.text_input("Ask a safety question, regulation, or training need:", placeholder="e.g. What’s required in hazard training for new underground miners?")
+question = st.text_input("Ask a safety question, regulation, or training need:", placeholder="e.g. What’s required in hazard training for new miners?")
 
 # Display conversation history
 for msg in st.session_state.messages:
@@ -44,16 +47,18 @@ Provide:
 Use **bold headings** for **Rule Cited**, **Source**, etc. Keep it clear and compliant.
 """
         try:
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You are Mr. Shaw, an MSHA training expert."},
-                    *st.session_state.messages,
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.4
-            )
-            answer = response["choices"][0]["message"]["content"]
+            client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[
+        {"role": "system", "content": "You are Mr. Shaw, an MSHA training expert."},
+        {"role": "user", "content": prompt}
+    ],
+    temperature=0.4
+)
+answer = response.choices[0].message.content
+
             st.session_state.messages.append({"role": "assistant", "content": answer})
             st.chat_message("assistant").markdown(answer)
         except Exception as e:
