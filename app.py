@@ -51,18 +51,24 @@ You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience
 - Context from MSHA docs: {context}
 """
 
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_question}
-            ],
-            temperature=0.3
-        )
+       try:
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_question}
+        ],
+        temperature=0.3
+    )
 
-        # Output formatting
-        ai_output = response.choices[0].message.content.strip()
-        formatted = format_response(ai_output, doc)
+    ai_output = response.choices[0].message.content.strip()
+    formatted = format_response(ai_output, doc)
+    st.session_state.chat_history.append((user_question, formatted))
+
+except Exception as e:
+    st.error("❌ OpenAI API call failed. Check your API key, usage limits, or model access.")
+    st.code(str(e))
+
 
         # Save in history
         st.session_state.chat_history.append((user_question, formatted))
