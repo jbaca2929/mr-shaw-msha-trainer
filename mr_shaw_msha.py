@@ -1,11 +1,13 @@
 import streamlit as st
 import os
-import openai
 from fpdf import FPDF
 import base64
 
-# Set up OpenAI client (v1+ syntax)
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+import openai
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+response = openai.ChatCompletion.create(...)
+
 
 # Set up page
 st.set_page_config(page_title="Mr. Shaw – MSHA Trainer", layout="centered")
@@ -52,7 +54,11 @@ Respond with:
 
 Speak plainly, like an experienced safety coach. Cite real rules where possible.
 """
+st.write("Prompt being sent to GPT:")
+st.code(prompt)
+st.write("API Key Present:", bool(os.getenv("OPENAI_API_KEY")))
 
+             
         try:
             response = client.chat.completions.create(
                 model="gpt-4",
