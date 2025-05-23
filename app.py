@@ -84,6 +84,19 @@ You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience
 - Context from MSHA documents: {context}
 """
 
+st.write("📄 SYSTEM PROMPT:")
+st.code(system_prompt)
+
+st.write("📥 USER QUESTION:")
+st.code(user_question)
+
+st.write("📚 CONTEXT DOC:")
+st.code(doc)
+
+st.write("📌 SNIPPET:")
+st.code(context)
+
+        
         try:
             response = client.chat.completions.create(
                 model="gpt-4",
