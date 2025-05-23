@@ -3,6 +3,13 @@ from openai import OpenAI
 
 # Initialize OpenAI
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+# Debug: Check if key loaded from Streamlit secrets
+if "OPENAI_API_KEY" not in st.secrets:
+    st.error("❌ OPENAI_API_KEY not found in st.secrets.")
+else:
+    st.success("✅ API key loaded successfully from st.secrets.")
+
+
 
 # App layout
 st.set_page_config(page_title="Mr. Shaw – MSHA Trainer")
