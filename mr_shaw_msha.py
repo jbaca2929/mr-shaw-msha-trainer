@@ -53,7 +53,7 @@ Speak plainly, like an experienced safety coach. Cite real rules where possible.
 """
 
         try:
-            response = client.chat.completions.create(
+            response = client.responses.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are Mr. Shaw, an MSHA training expert."},
