@@ -73,7 +73,7 @@ You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience
         st.write("📨 Sending prompt to GPT-4:")
         st.code(system_prompt)
 
-      try:
+try:
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[
