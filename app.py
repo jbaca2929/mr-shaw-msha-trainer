@@ -4,12 +4,12 @@ from datetime import datetime
 from utils import get_simulated_context, format_response
 
 st.set_page_config(page_title="Mr. Shaw MSHA Trainer", layout="centered")
-st.title("👷‍♂️ Mr. Shaw- Your MSHA Expert Trainer")
+st.title("👷‍♂️ Mr. Shaw – Your MSHA Expert Trainer")
 st.markdown("**MSHA-compliant safety guidance from a certified instructor—just ask.**")
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-# Session state
+# State setup
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 if "selected_topic" not in st.session_state:
@@ -19,7 +19,7 @@ if "submit" not in st.session_state:
 if "user_input_snapshot" not in st.session_state:
     st.session_state.user_input_snapshot = ""
 
-# Mine type selection
+# Mine type
 mine_type = st.radio("🛠️ What type of mine are you working on?", [
     "Part 46 – Sand & Gravel",
     "Part 48 – Surface Mine",
@@ -37,6 +37,7 @@ topics = {
     "Miners' Rights": "What rights do miners have under MSHA?"
 }
 
+# Topic Buttons
 st.markdown("### 🧭 Choose a topic or ask your own question:")
 cols = st.columns(len(topics))
 for i, (label, question) in enumerate(topics.items()):
@@ -44,21 +45,25 @@ for i, (label, question) in enumerate(topics.items()):
         if st.button(f"📌 {label}", key=f"topic_{i}_{label}"):
             st.session_state.selected_topic = question
 
-# User question input
+# Dynamic Key to Force Input Update
+unique_input_key = f"user_input_{st.session_state.selected_topic or 'default'}"
+
+# Question Input
 st.markdown("### ✏️ What’s your safety question today?")
 user_question = st.text_input(
     label="Type your question below:",
     value=st.session_state.selected_topic,
     placeholder="e.g., What are the rules for fall protection?",
-    key="user_question_input"
+    key=unique_input_key
 )
 
-# Ask Mr. Shaw button
+# Submit Button Logic
 if st.button("🔵 Ask Mr. Shaw"):
-    st.session_state.submit = True
-    st.session_state.user_input_snapshot = user_question
+    if user_question.strip():
+        st.session_state.submit = True
+        st.session_state.user_input_snapshot = user_question
 
-# Trigger GPT logic
+# GPT-4 Logic
 if st.session_state.submit and st.session_state.user_input_snapshot:
     user_question = st.session_state.user_input_snapshot
     st.write("🛠 GPT-4 call initiated")
@@ -100,7 +105,7 @@ You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience
             st.error("❌ GPT-4 API call failed or timed out:")
             st.code(str(e))
 
-# Display chat history
+# Chat history
 if st.session_state.chat_history:
     st.markdown("## 📚 Mr. Shaw's Responses")
     for idx, (q, a) in enumerate(reversed(st.session_state.chat_history)):
