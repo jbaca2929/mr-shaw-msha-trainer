@@ -5,6 +5,10 @@ from openai import OpenAI
 # Initialize OpenAI client with modern v1+ SDK
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
+# Set a default model
+if "openai_model" not in st.session_state:
+    st.session_state["openai_model"] = "gpt-4"
+
 # Streamlit UI
 st.set_page_config(page_title="Mr. Shaw – MSHA Trainer", layout="centered")
 st.title("🛠️ Ask Mr. Shaw – Your MSHA Safety Trainer")
