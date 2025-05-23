@@ -61,6 +61,10 @@ st.button("🔵 Ask Mr. Shaw", on_click=submit_question)
 
 # GPT-4 call
 if st.session_state.submit and user_question:
+    st.write("🛠 GPT-4 call initiated")
+    st.write(f"Question: {user_question}")
+    st.write(f"Mine Type: {mine_type}")
+
     with st.spinner("Mr. Shaw is reviewing the CFR..."):
         doc = get_simulated_context(user_question)
         context = doc["snippet"] if doc else "No document matched. Providing general MSHA guidance."
@@ -75,6 +79,9 @@ You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience
 - Context from MSHA documents: {context}
 """
 
+        st.write("📨 Sending prompt to GPT-4:")
+        st.code(system_prompt)
+
         try:
             response = client.chat.completions.create(
                 model="gpt-4",
@@ -84,7 +91,11 @@ You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience
                 ],
                 temperature=0.3
             )
+
             ai_output = response.choices[0].message.content.strip()
+            st.success("✅ GPT-4 responded:")
+            st.write(ai_output)
+
             formatted = format_response(ai_output, doc)
             st.session_state.chat_history.append((user_question, formatted))
             st.session_state.submit = False
