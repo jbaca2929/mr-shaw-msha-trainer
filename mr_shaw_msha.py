@@ -54,7 +54,7 @@ Speak plainly, like an experienced safety coach. Cite real rules where possible.
 
         try:
             response = client.responses.create(
-                model="gpt-4",
+                model="gpt-4.1",
                 messages=[
                     {"role": "system", "content": "You are Mr. Shaw, an MSHA training expert."},
                     {"role": "user", "content": prompt}
