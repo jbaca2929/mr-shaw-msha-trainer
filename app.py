@@ -25,6 +25,9 @@ if submit and user_question:
     with st.spinner("Mr. Shaw is reviewing the CFR..."):
         # Build the prompt
         system_prompt = f"""
+         except Exception as e:
+        st.error("❌ GPT call failed")
+        st.code(str(e))
 You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience.
 Speak like you're training real miners—direct, practical, and legally correct.
 
