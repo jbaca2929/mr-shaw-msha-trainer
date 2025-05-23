@@ -4,7 +4,7 @@ from fpdf import FPDF
 import openai
 
 # Initialize OpenAI client (v1.0+ syntax)
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Page setup
 st.set_page_config(page_title="Mr. Shaw – MSHA Trainer", layout="centered")
