@@ -1,5 +1,5 @@
 import streamlit as st
-from openai import OpenAI
+import OpenAI from "openai";
 from fpdf import FPDF
 
 # Initialize OpenAI client (v1.0+)
