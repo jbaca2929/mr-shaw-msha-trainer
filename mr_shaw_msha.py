@@ -37,28 +37,39 @@ for msg in st.session_state.messages:
 
 # Ask Mr. Shaw
 if st.button("Ask Mr. Shaw") and question.strip():
-    user_message = {"role": "user", "content": question}
-    st.session_state.messages.append(user_message)
-
+    user_msg = {"role": "user", "content": question.strip()}
+    st.session_state.messages.append(user_msg)
+    
     with st.spinner("🔎 Mr. Shaw is reviewing MSHA regulations..."):
         prompt = f"""
 You are Mr. Shaw, a certified MSHA trainer with 30 years of experience.
+A miner from a {mine_type} site asks: \"{question}\"
 
-A miner from a {mine_type} site asks: "{question}"
+Provide:
+1. A concise answer (3–5 sentences)
+2. The **specific MSHA regulation** (Part and subpart)
+3. A trusted MSHA.gov or NIOSH.gov resource
+4. Optional: YouTube link to a relevant training video
 
-Respond with:
-1. A clear answer (3–5 sentences)
-2. **Rule Cited**: Include the specific MSHA regulation (Part and subpart)
-3. **Source**: Link to MSHA.gov or NIOSH.gov
-4. **Video** (optional): YouTube training if available
-
-Speak plainly, like an experienced safety coach. Cite real rules where possible.
+Use **bold headings** for **Rule Cited**, **Source**, etc. Keep it clear and compliant.
 """
-st.write("Prompt being sent to GPT:")
-st.code(prompt)
-st.write("API Key Present:", bool(os.getenv("OPENAI_API_KEY")))
 
-             
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "You are Mr. Shaw, an MSHA training expert."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.4
+            )
+            answer = response['choices'][0]['message']['content']
+            st.markdown(answer)
+            st.session_state.messages.append({"role": "assistant", "content": answer})
+
+        except Exception as e:
+            st.error(f"❌ OpenAI Error: {e}")
+
 try:
             response = client.chat.completions.create(
                 model="gpt-4",
