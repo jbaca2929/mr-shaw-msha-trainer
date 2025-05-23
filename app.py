@@ -45,8 +45,14 @@ Speak like you're training real miners—direct, practical, and legally correct.
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_question}
                 ],
-                temperature=0.2
+                temperature=0.3,
+                timeout=20
             )
+            output = response.choices[0].message.content.strip()
+            st.success("✅ Mr. Shaw responded:")
+            st.write(output)
+
+            
             answer = response.choices[0].message.content.strip()
             st.success("✅ Mr. Shaw responded:")
             st.write(answer)
