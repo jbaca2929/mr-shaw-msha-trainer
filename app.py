@@ -40,9 +40,9 @@ You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience
 """
 
       try:
-    st.success("✅ Mr. Shaw responded:")
-    ai_output = f"MSHA requires fall protection whenever miners are exposed to falling more than 6 feet. Regulation: 30 CFR § 56.15005."
-    st.markdown(ai_output)
+        st.success("✅ Mr. Shaw responded:")
+        ai_output = f"MSHA requires fall protection whenever miners are exposed to falling more than 6 feet. Regulation: 30 CFR § 56.15005."
+        st.markdown(ai_output)
   
  
 
