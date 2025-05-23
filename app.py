@@ -24,11 +24,12 @@ mine_type = st.radio("🛠️ What type of mine are you working on?", [
 
 topics = {
     "Equipment Safety": "What are the MSHA requirements for equipment safety?",
-    "Emergency": "What are MSHA's emergency response rules?",
-    "Safe Handling": "What are safe material handling procedures under MSHA?",
+    "Emergency Procedures": "What are MSHA's emergency response rules?",
+    "Material Handling": "What are safe material handling procedures under MSHA?",
     "Workplace Exams": "What does MSHA require for workplace exams?",
     "HazCom": "What is required for hazard communication under MSHA?",
     "Fall Protection": "What are MSHA's rules for fall protection?"
+    "Miners' Rights": "What are my rights as a miner?"
 }
 
 st.markdown("### 🧭 Choose a topic or ask your own question:")
@@ -70,30 +71,26 @@ You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience
 - Context from MSHA documents: {context}
 """
 
-        st.write("📨 Sending prompt to GPT-4:")
-        st.code(system_prompt)
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_question}
+                ],
+                timeout=20
+            )
+            ai_output = response.choices[0].message.content.strip()
+            st.success("✅ GPT-4 responded:")
+            st.code(ai_output)
 
-try:
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_question}
-        ],
-        timeout=20
-    )
-    ai_output = response.choices[0].message.content.strip()
-    st.success("✅ GPT-4 responded:")
-    st.code(ai_output)
+            formatted = format_response(ai_output, doc)
+            st.session_state.chat_history.append((user_question, formatted))
+            st.session_state.submit = False
 
-    formatted = format_response(ai_output, doc)
-    st.session_state.chat_history.append((user_question, formatted))
-    st.session_state.submit = False
-
-except Exception as e:
-    st.error("❌ GPT-4 API call failed or timed out:")
-    st.code(str(e))
-
+        except Exception as e:
+            st.error("❌ GPT-4 API call failed or timed out:")
+            st.code(str(e))
 
 if st.session_state.chat_history:
     st.markdown("## 📚 Mr. Shaw's Responses")
