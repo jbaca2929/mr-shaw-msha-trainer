@@ -2,6 +2,8 @@ import streamlit as st
 import os
 from fpdf import FPDF
 from openai import OpenAI
+import json
+
 
 # Initialize OpenAI client (v1.0+ syntax)
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
