@@ -1,10 +1,10 @@
 import streamlit as st
 import os
 from fpdf import FPDF
-import openai
+from openai import OpenAI
 
-# ✅ Set API key from environment
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
 
 # ✅ Page setup
 st.set_page_config(page_title="Mr. Shaw – MSHA Trainer", layout="centered")
@@ -50,16 +50,16 @@ Speak plainly, like an experienced safety coach. Cite real rules where possible.
 """
 
         try:
-            response = openai.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You are Mr. Shaw, an MSHA training expert."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.4
-            )
+           response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[
+        {"role": "system", "content": "You are Mr. Shaw, an MSHA training expert."},
+        {"role": "user", "content": prompt}
+    ],
+    temperature=0.4
+)
+answer = response.choices[0].message.content
 
-            answer = response.choices[0].message.content
             assistant_msg = {"role": "assistant", "content": answer}
             st.session_state.messages.append(assistant_msg)
             st.chat_message("assistant").markdown(answer)
