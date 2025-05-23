@@ -1,6 +1,8 @@
 import streamlit as st
 from openai import OpenAI
 
+st.set_page_config(page_title="Mr. Shaw – MSHA Trainer")
+
 # Initialize OpenAI
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 # Debug: Check if key loaded from Streamlit secrets
@@ -12,7 +14,7 @@ else:
 
 
 # App layout
-st.set_page_config(page_title="Mr. Shaw – MSHA Trainer")
+
 st.title("👷 Mr. Shaw – MSHA Trainer")
 st.write("MSHA-compliant safety guidance from a certified instructor—just ask.")
 
