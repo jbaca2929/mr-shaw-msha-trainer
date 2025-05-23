@@ -3,8 +3,8 @@ import os
 from openai import OpenAI
 from fpdf import FPDF
 
-# Initialize OpenAI Client with new v1+ API format
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
 
 # Set up Streamlit page
 st.set_page_config(page_title="Mr. Shaw – MSHA Trainer", layout="centered")
