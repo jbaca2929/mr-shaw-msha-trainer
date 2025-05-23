@@ -19,6 +19,7 @@ question = st.text_input(
 # Action button
 if st.button("Ask Mr. Shaw") and question.strip():
     with st.spinner("🔎 Mr. Shaw is checking MSHA regulations, guidance, and sources..."):
+
         prompt = f"""
 You are Mr. Shaw, a certified MSHA trainer with 30 years of experience. A miner asks:
 
@@ -43,7 +44,7 @@ Keep a practical tone and stay compliant with MSHA standards.
                 ],
                 temperature=0.4
             )
-            answer = response['choices'][0]['message']['content']
+            answer = response["choices"][0]["message"]["content"]
             st.markdown(answer)
 
         except Exception as e:
