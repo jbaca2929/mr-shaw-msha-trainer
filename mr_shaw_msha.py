@@ -1,38 +1,35 @@
 import streamlit as st
-import os
 from openai import OpenAI
 from fpdf import FPDF
 
+# Initialize OpenAI Client with secure API key
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-
-# Set up Streamlit page
+# Streamlit Page Setup
 st.set_page_config(page_title="Mr. Shaw – MSHA Trainer", layout="centered")
 st.title("🛠️ Ask Mr. Shaw – Your MSHA Safety Trainer")
 st.caption("Powered by OpenAI. Built with Certified MSHA Instructors.")
 
-# Initialize chat history
+# Track conversation
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Mine type selector
+# Mine type selection
 mine_type = st.radio("Select your mine type:", [
     "Part 46 (Sand & Gravel)",
     "Part 48 Surface",
     "Part 48 Underground"
 ])
 
-# Question input
-question = st.text_input(
-    "Ask a safety question, regulation, or training need:",
-    placeholder="e.g. What’s required for fall protection under Part 48?"
-)
+# User input
+question = st.text_input("Ask a safety question, regulation, or training need:",
+                         placeholder="e.g. What’s required for fall protection under Part 48?")
 
-# Display chat history
+# Show prior messages
 for msg in st.session_state.messages:
     st.chat_message(msg["role"]).markdown(msg["content"])
 
-# Ask Mr. Shaw logic
+# Submit button
 if st.button("Ask Mr. Shaw") and question.strip():
     user_msg = {"role": "user", "content": question}
     st.session_state.messages.append(user_msg)
@@ -69,12 +66,13 @@ Speak plainly, like an experienced safety coach. Cite real rules where possible.
         except Exception as e:
             st.error(f"❌ OpenAI Error: {e}")
 
-# PDF Export Button
-if st.download_button("📄 Export Chat as PDF", "\n".join([f"{m['role'].title()}: {m['content']}" for m in st.session_state.messages]), file_name="msha_chat_log.txt"):
+# Export to PDF
+if st.download_button("📄 Export Chat as PDF",
+    "\n".join([f"{m['role'].title()}: {m['content']}" for m in st.session_state.messages]),
+    file_name="msha_chat_log.txt"):
     pass
 
-st.write("🔑 Key present:", "OPENAI_API_KEY" in st.secrets)
-
-
-# Disclaimer
-st.markdown("---\nBuilt with AI. This is not official MSHA guidance. Always verify with your MSHA Inspector.")
+# Key presence for debugging
+st.markdown("---")
+st.markdown("🔑 **Key present:** `True`")
+st.markdown("_Built with AI. This is not official MSHA guidance. Always verify with your inspector._")
