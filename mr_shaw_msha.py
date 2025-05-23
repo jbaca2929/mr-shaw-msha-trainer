@@ -52,7 +52,7 @@ Respond with:
 Speak plainly, like an experienced safety coach. Cite real rules where possible.
 """
         try:
-            response = openai.chat.completions.create(
+            response = openai.chat.completions.create()
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are Mr. Shaw, an MSHA training expert."},
