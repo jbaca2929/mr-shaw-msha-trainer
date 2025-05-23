@@ -39,20 +39,11 @@ You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience
 - Context from MSHA documents: {context}
 """
 
-        try:
-            # GPT-4 API call
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_question}
-                ],
-                timeout=20
-            )
-
-            ai_output = response.choices[0].message.content.strip()
-            st.success("✅ Mr. Shaw responded:")
-            st.markdown(ai_output)
+      try:
+    st.success("✅ Mr. Shaw responded:")
+    ai_output = f"MSHA requires fall protection whenever miners are exposed to falling more than 6 feet. Regulation: 30 CFR § 56.15005."
+    st.markdown(ai_output)
+ 
 
         except Exception as e:
             st.error("❌ GPT-4 API call failed or timed out:")
