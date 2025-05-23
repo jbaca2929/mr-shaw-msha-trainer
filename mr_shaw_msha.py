@@ -59,7 +59,7 @@ st.code(prompt)
 st.write("API Key Present:", bool(os.getenv("OPENAI_API_KEY")))
 
              
-    try:
+try:
             response = client.chat.completions.create(
                 model="gpt-4",
                 messages=[
