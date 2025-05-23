@@ -1,25 +1,22 @@
 import streamlit as st
 import os
-import openai
+from openai import OpenAI
 
-# Initialize OpenAI client securely
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Initialize OpenAI client with modern v1+ SDK
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Page setup
+# Streamlit UI
 st.set_page_config(page_title="Mr. Shaw – MSHA Trainer", layout="centered")
 st.title("🛠️ Ask Mr. Shaw – Your MSHA Safety Trainer")
 st.caption("Powered by OpenAI. Designed with Certified MSHA Instructors.")
 
-# Input box
 question = st.text_input(
     "Ask a safety question, regulation, or training need:",
     placeholder="e.g. What’s required in hazard training for new miners?"
 )
 
-# Action button
 if st.button("Ask Mr. Shaw") and question.strip():
     with st.spinner("🔎 Mr. Shaw is checking MSHA regulations, guidance, and sources..."):
-
         prompt = f"""
 You are Mr. Shaw, a certified MSHA trainer with 30 years of experience. A miner asks:
 
@@ -36,7 +33,7 @@ Keep a practical tone and stay compliant with MSHA standards.
 """
 
         try:
-            response = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are Mr. Shaw, an MSHA training expert."},
@@ -44,8 +41,6 @@ Keep a practical tone and stay compliant with MSHA standards.
                 ],
                 temperature=0.4
             )
-            answer = response["choices"][0]["message"]["content"]
-            st.markdown(answer)
-
+            st.markdown(response.choices[0].message.content)
         except Exception as e:
             st.error(f"❌ OpenAI Error: {e}")
