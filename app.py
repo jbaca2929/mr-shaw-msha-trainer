@@ -22,30 +22,35 @@ mine_type = st.radio("🛠️ What type of mine are you working on?", [
     "Part 48 – Underground Mine"
 ])
 
-# --- Topic Tags (Optional Quick Filters) ---
-st.markdown("### 🧭 Choose a topic or ask your own question:")
-cols = st.columns(5)
-topics = ["Equipment Safety", "Emergency", "Handling", "HazCom", "Fall Prot."]
-for i, topic in enumerate(topics):
-    with cols[i]:
-        st.button(f"📌 {topic}", key=f"topic_{i}")
-
+# Topic selector logic
 if "selected_topic" not in st.session_state:
     st.session_state.selected_topic = ""
 
-# When a topic button is clicked, set it as the default question
-for i, topic in enumerate(topics):
-    with cols[i]:
-        if st.button(f"📌 {topic}", key=f"topic_{i}"):
-            st.session_state.selected_topic = f"What are the MSHA rules for {topic.lower()}?"
+topics = {
+    "Equipment Safety": "What are the MSHA requirements for equipment safety?",
+    "Emergency": "What are MSHA's emergency response rules?",
+    "Handling": "What are safe material handling procedures under MSHA?",
+    "Workplace Exams": "What does MSHA require for workplace exams?",
+    "HazCom": "What is required for hazard communication under MSHA?",
+    "Fall Protection": "What are MSHA's rules for fall protection?"
+}
 
-# Use the topic or free text input
+st.markdown("### 🧭 Choose a topic or ask your own question:")
+cols = st.columns(len(topics))
+
+for i, (label, question) in enumerate(topics.items()):
+    with cols[i]:
+        if st.button(f"📌 {label}", key=f"topic_{i}_{label}"):
+            st.session_state.selected_topic = question
+
+# Use topic input as default
 st.markdown("### ✏️ What’s your safety question today?")
 user_question = st.text_input(
     "Type your question below:",
     value=st.session_state.selected_topic,
     placeholder="e.g., What are the rules for fall protection?"
 )
+
 
 
 # --- Question Input ---
