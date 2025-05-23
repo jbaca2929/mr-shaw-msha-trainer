@@ -96,27 +96,28 @@ st.code(doc)
 st.write("📌 SNIPPET:")
 st.code(context)
 
-        
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_question}
-                ],
-                timeout=20
-            )
-            ai_output = response.choices[0].message.content.strip()
-            st.success("✅ GPT-4 responded:")
-            st.code(ai_output)
+    try:
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_question}
+        ],
+        timeout=20
+    )
 
-            formatted = format_response(ai_output, doc)
-            st.session_state.chat_history.append((user_question, formatted))
-            st.session_state.submit = False
+    ai_output = response.choices[0].message.content.strip()
+    st.success("✅ GPT-4 responded:")
+    st.code(ai_output)
 
-        except Exception as e:
-            st.error("❌ GPT-4 API call failed or timed out:")
-            st.code(str(e))
+    formatted = format_response(ai_output, doc)
+    st.session_state.chat_history.append((user_question, formatted))
+    st.session_state.submit = False
+
+except Exception as e:
+    st.error("❌ GPT-4 API call failed or timed out:")
+    st.code(str(e))
+
 
 # Chat history
 if st.session_state.chat_history:
