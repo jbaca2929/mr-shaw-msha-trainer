@@ -1,77 +1,104 @@
 import streamlit as st
-import os
-from fpdf import FPDF
+from datetime import datetime
 from openai import OpenAI
 
-# Initialize OpenAI client (v1.0+ syntax)
+# Init
+st.set_page_config(page_title="Mr. Shaw MSHA Trainer", layout="centered")
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-# Set up Streamlit
-st.set_page_config(page_title="Mr. Shaw – MSHA Trainer", layout="centered")
-st.title("🛠️ Ask Mr. Shaw – Your MSHA Safety Trainer")
-st.caption("Powered by OpenAI. Built with Certified MSHA Instructors.")
+st.title("👷‍♂️ Mr. Shaw MSHA Trainer")
+st.markdown("**MSHA-compliant safety guidance from a certified instructor—just ask.**")
 
-# Chat history
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+# --- Mine Type Selector ---
+mine_type = st.radio("🛠️ What type of mine are you working on?", 
+    ["Part 46 – Sand & Gravel", "Part 48 – Surface Mine", "Part 48 – Underground Mine"])
 
-# Mine type selector
-mine_type = st.radio("Select your mine type:", [
-    "Part 46 (Sand & Gravel)",
-    "Part 48 Surface",
-    "Part 48 Underground"
-])
+# --- Topic Tags (Optional Presets) ---
+st.markdown("### 🧭 Choose a topic or ask your own question:")
+cols = st.columns(5)
+topics = ["Equipment Safety", "Emergency", "Handling", "HazCom", "Fall Prot."]
+for i, topic in enumerate(topics):
+    with cols[i]:
+        st.button(f"📌 {topic}", key=f"tag_{i}")
 
-# User input
-question = st.text_input(
-    "Ask a safety question, regulation, or training need:",
-    placeholder="e.g. What is fall protection?"
-)
+# --- User Input ---
+st.markdown("### ✏️ What’s your safety question today?")
+user_question = st.text_input("Type your question below:", placeholder="e.g., When is fall protection required on a loader ramp?")
+st.button("🎤 Speak (voice input coming soon)", disabled=True)
 
-# Display chat
-for msg in st.session_state.messages:
-    st.chat_message(msg["role"]).markdown(msg["content"])
+# --- Simulated RAG Lookup ---
+def simulated_doc_search(query):
+    examples = {
+        "fall protection": {
+            "snippet": "MSHA requires fall protection where there is a danger of falling more than 6 feet, per 30 CFR § 56.15005.",
+            "citation": "30 CFR § 56.15005",
+            "source": "https://www.ecfr.gov/current/title-30/part-56"
+        },
+        "first aid": {
+            "snippet": "First aid materials must be readily available at all mines. Part 46 requires compliance with 30 CFR § 56.18010.",
+            "citation": "30 CFR § 56.18010",
+            "source": "https://www.ecfr.gov/current/title-30/part-56"
+        },
+        "task training": {
+            "snippet": "New miners and experienced miners assigned new tasks must receive task training under 30 CFR § 46.7.",
+            "citation": "30 CFR § 46.7",
+            "source": "https://www.ecfr.gov/current/title-30/part-46"
+        }
+    }
+    for keyword, data in examples.items():
+        if keyword in query.lower():
+            return data
+    return None
 
-# Ask Mr. Shaw
-if st.button("Ask Mr. Shaw") and question.strip():
-    user_msg = {"role": "user", "content": question.strip()}
-    st.session_state.messages.append(user_msg)
+# --- Ask Mr. Shaw ---
+if st.button("🔵 Ask Mr. Shaw") and user_question:
+    with st.spinner("Mr. Shaw is reviewing the CFR..."):
 
-    with st.spinner("🔎 Mr. Shaw is reviewing MSHA regulations..."):
-        try:
-            prompt = f"""
-You are Mr. Shaw, a certified MSHA trainer with 30 years of experience.
-A miner from a {mine_type} site asks: "{question}"
+        # RAG-like grounding
+        doc = simulated_doc_search(user_question)
+        context = doc["snippet"] if doc else "No document match found. Mr. Shaw will answer using general MSHA rules."
 
-Respond with:
-1. A clear answer (3–5 sentences)
-2. **Rule Cited**: Include the specific MSHA regulation (Part and subpart)
-3. **Source**: Link to MSHA.gov or NIOSH.gov
-4. **Video** (optional): YouTube training if applicable
+        # Compose prompt
+        system_prompt = f"""
+You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience. Speak directly and cite only official MSHA, CFR, or NIOSH rules.
 
-Speak plainly like a seasoned trainer. Cite real regulations when possible.
+Your tone is instructional, experienced, and confident. You always:
+- Summarize in plain language
+- Quote the regulation and explain what it means
+- Provide a citation like 30 CFR § 46.5
+- Keep it under 300 words unless asked for more detail
+
+Mine Type: {mine_type}
+Context from MSHA documents: {context}
 """
 
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You are Mr. Shaw, an MSHA training expert."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.4
-            )
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_question}
+            ],
+            temperature=0.3
+        )
 
-            answer = response.choices[0].message.content
-            st.session_state.messages.append({"role": "assistant", "content": answer})
-            st.chat_message("assistant").markdown(answer)
+        full_reply = response.choices[0].message.content.strip()
 
-        except Exception as e:
-            st.error(f"❌ OpenAI Error: {e}")
+        # --- Display Answer ---
+        st.divider()
+        st.subheader("👷 Mr. Shaw Says:")
+        st.markdown(full_reply)
 
-# Export chat to PDF (as .txt fallback)
-if st.download_button("📄 Export Chat as PDF", "\n".join([f"{m['role'].title()}: {m['content']}" for m in st.session_state.messages]), file_name="msha_chat_log.txt"):
-    pass
+        if doc:
+            st.markdown(f"📘 **Rule Cited:** {doc['citation']}")
+            st.markdown(f"🔗 [View Rule]({doc['source']})")
 
-# Footer
-st.markdown("---\n🔒 Built with AI. This is not official MSHA guidance. Always verify with your inspector.")
+        cols = st.columns(2)
+        with cols[0]:
+            st.button("⭐ Save this lesson")
+        with cols[1]:
+            st.button("📄 Export to PDF", disabled=True)
 
+        st.warning("⚠️ Always follow your site-specific safety plan and confirm with your certified trainer.")
+
+# --- Footer ---
+st.caption(f"App version 0.2 — Generated on {datetime.now().strftime('%B %d, %Y')}")
