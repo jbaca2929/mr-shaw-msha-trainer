@@ -46,23 +46,21 @@ Provide:
 
 Use **bold headings** for **Rule Cited**, **Source**, etc. Keep it clear and compliant.
 """
-        try:
-            client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+     try:
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are Mr. Shaw, an MSHA training expert."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.4
+    )
+    answer = response.choices[0].message.content
+    st.markdown(answer)
 
-response = client.chat.completions.create(
-    model="gpt-4",
-    messages=[
-        {"role": "system", "content": "You are Mr. Shaw, an MSHA training expert."},
-        {"role": "user", "content": prompt}
-    ],
-    temperature=0.4
-)
-answer = response.choices[0].message.content
+except Exception as e:
+    st.error(f"❌ OpenAI Error: {e}")
 
-            st.session_state.messages.append({"role": "assistant", "content": answer})
-            st.chat_message("assistant").markdown(answer)
-        except Exception as e:
-            st.error(f"❌ OpenAI Error: {e}")
 
 # PDF Export
 if st.download_button("📄 Export Chat as PDF", "\n".join([f"{m['role'].title()}: {m['content']}" for m in st.session_state.messages]), file_name="msha_chat_log.txt"):
