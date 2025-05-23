@@ -73,5 +73,8 @@ Speak plainly, like an experienced safety coach. Cite real rules where possible.
 if st.download_button("📄 Export Chat as PDF", "\n".join([f"{m['role'].title()}: {m['content']}" for m in st.session_state.messages]), file_name="msha_chat_log.txt"):
     pass
 
+st.write("🔑 Key present:", "OPENAI_API_KEY" in st.secrets)
+
+
 # Disclaimer
 st.markdown("---\nBuilt with AI. This is not official MSHA guidance. Always verify with your MSHA Inspector.")
