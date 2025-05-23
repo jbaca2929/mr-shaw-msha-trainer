@@ -13,7 +13,7 @@ st.caption("Powered by OpenAI. Designed with Certified MSHA Instructors.")
 # Input
 question = st.text_input(
     "Ask a safety question, regulation, or training need:",
-    placeholder="e.g. What’s required in hazard training for new underground miners?"
+    placeholder="e.g. What’s required in hazard training for new miners?"
 )
 
 # Button + Action
