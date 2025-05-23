@@ -45,23 +45,21 @@ You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience
 """
 
         # OpenAI call with error handling
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_question}
-                ],
-                temperature=0.3
-            )
+       try:
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "user", "content": "Say hello as Mr. Shaw would at a safety meeting."}
+        ]
+    )
+    ai_output = response.choices[0].message.content.strip()
+    st.success("✅ GPT-4 responded:")
+    st.markdown(ai_output)
 
-            ai_output = response.choices[0].message.content.strip()
-            formatted = format_response(ai_output, doc)
-            st.session_state.chat_history.append((user_question, formatted))
+except Exception as e:
+    st.error("❌ OpenAI error:")
+    st.code(str(e))
 
-        except Exception as e:
-            st.error("❌ OpenAI API call failed. Check your API key, usage limits, or model access.")
-            st.code(str(e))
 
 # --- Display Chat History ---
 if st.session_state.chat_history:
