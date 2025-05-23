@@ -22,13 +22,7 @@ mine_type = st.radio("🛠️ What type of mine are you working on?", [
     "Part 48 – Underground Mine"
 ])
 
-# --- Topic Tags (Optional Quick Filters) ---
-st.markdown("### 🧭 Choose a topic or ask your own question:")
-cols = st.columns(5)
-topics = ["Equipment Safety", "Emergency", "Workplace Exams", "HazCom", "Fall Protection."]
-for i, topic in enumerate(topics):
-    with cols[i]:
-        st.button(f"📌 {topic}", key=f"topic_{i}")
+
 
 # --- Question Input ---
 st.markdown("### ✏️ What’s your safety question today?")
