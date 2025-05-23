@@ -28,7 +28,7 @@ topics = {
     "Material Handling": "What are safe material handling procedures under MSHA?",
     "Workplace Exams": "What does MSHA require for workplace exams?",
     "HazCom": "What is required for hazard communication under MSHA?",
-    "Fall Protection": "What are MSHA's rules for fall protection?"
+    "Fall Protection": "What are MSHA's rules for fall protection?",
     "Miners' Rights": "What are my rights as a miner?"
 }
 
