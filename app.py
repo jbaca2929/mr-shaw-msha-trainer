@@ -96,7 +96,7 @@ st.code(doc)
 st.write("📌 SNIPPET:")
 st.code(context)
 
-    try:
+try:
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[
