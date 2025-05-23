@@ -19,13 +19,6 @@ if "chat_history" not in st.session_state:
 mine_type = st.radio("🛠️ What type of mine are you working on?",
     ["Part 46 – Sand & Gravel", "Part 48 – Surface Mine", "Part 48 – Underground Mine"])
 
-# --- Training Topic Tags ---
-st.markdown("### 🧭 Choose a topic or ask your own question:")
-cols = st.columns(5)
-topics = ["Equipment Safety", "Emergency", "Handling", "HazCom", "Fall Prot."]
-for i, topic in enumerate(topics):
-    with cols[i]:
-        st.button(f"📌 {topic}", key=f"topic_{i}")
 
 # --- User Question Input ---
 st.markdown("### ✏️ What’s your safety question today?")
