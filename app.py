@@ -52,12 +52,6 @@ user_question = st.text_input(
 )
 
 
-
-# --- Question Input ---
-st.markdown("### ✏️ What’s your safety question today?")
-user_question = st.text_input("Type your question below:", placeholder="e.g., What are the rules for fall protection?")
-st.button("🎤 Speak (voice input coming soon)", disabled=True)
-
 # --- Ask Mr. Shaw ---
 if st.button("🔵 Ask Mr. Shaw") and user_question:
     with st.spinner("Mr. Shaw is reviewing the CFR..."):
