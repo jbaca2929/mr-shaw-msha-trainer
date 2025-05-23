@@ -55,7 +55,10 @@ Speak like you're training real miners—direct, practical, and legally correct.
             output = response.choices[0].message.content.strip()
             st.success("✅ Mr. Shaw responded:")
             st.write(output)
-
+# Debugging output
+    st.markdown("### 🧪 Raw GPT Output:")
+    st.code(output)
+        
         except Exception as e:
             st.error("❌ GPT-4 call failed:")
             st.code(str(e))
