@@ -1,50 +1,39 @@
 import streamlit as st
 import os
-from openai import OpenAI
+import openai
 
-# Initialize OpenAI client with modern v1+ SDK
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+# Set up OpenAI API key
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Set a default model
-if "openai_model" not in st.session_state:
-    st.session_state["openai_model"] = "gpt-4"
+# Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-# Streamlit UI
-st.set_page_config(page_title="Mr. Shaw – MSHA Trainer", layout="centered")
-st.title("🛠️ Ask Mr. Shaw – Your MSHA Safety Trainer")
-st.caption("Powered by OpenAI. Designed with Certified MSHA Instructors.")
+# Display chat messages from history
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
 
-question = st.text_input(
-    "Ask a safety question, regulation, or training need:",
-    placeholder="e.g. What’s required in hazard training for new miners?"
-)
+# Chat input
+if prompt := st.chat_input("Ask Mr. Shaw about MSHA regulations..."):
+    # Append user message to chat history
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
 
-if st.button("Ask Mr. Shaw") and question.strip():
-    with st.spinner("🔎 Mr. Shaw is checking MSHA regulations, guidance, and sources..."):
-        prompt = f"""
-You are Mr. Shaw, a certified MSHA trainer with 30 years of experience. A miner asks:
-
-"{question}"
-
-Please respond with:
-1. A concise answer (3–5 sentences)
-2. The specific MSHA regulation (Part 46 or 48, cite subpart)
-3. A link to an official MSHA.gov or NIOSH.gov resource
-4. If helpful, include a related YouTube training video link
-
-Use **bold labels** for: **Rule Cited**, **Source**, **Video**, etc.
-Keep a practical tone and stay compliant with MSHA standards.
-"""
-
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You are Mr. Shaw, an MSHA training expert."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.4
-            )
-            st.markdown(response.choices[0].message.content)
-        except Exception as e:
-            st.error(f"❌ OpenAI Error: {e}")
+    # Prepare OpenAI API call
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are Mr. Shaw, an MSHA training expert."},
+                *st.session_state.messages
+            ],
+            temperature=0.4
+        )
+        assistant_message = response.choices[0].message.content
+        st.session_state.messages.append({"role": "assistant", "content": assistant_message})
+        with st.chat_message("assistant"):
+            st.markdown(assistant_message)
+    except Exception as e:
+        st.error(f"❌ OpenAI Error: {e}")
