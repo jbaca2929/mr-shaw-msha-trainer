@@ -32,20 +32,22 @@ Respond with:
 Format your answer like a conversation from Mr. Shaw. Do not sound like ChatGPT. Add short bolded labels like **Rule Cited**, **Source**, etc.
 """
 
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You are Mr. Shaw, an MSHA expert."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.4
-            )
-            reply = response.choices[0].message.content
-            st.markdown(reply)
+       try:
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are Mr. Shaw, an MSHA expert."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.4
+    )
+    reply = response.choices[0].message.content
+    st.markdown(reply)
 
-        except Exception as e:
-            st.error(f"❌ Error generating response: {e}")
+except Exception as e:
+    st.error("❌ OpenAI call failed.")
+    st.exception(e)
+
 
 # Footer
 st.markdown("---")
