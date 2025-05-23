@@ -75,6 +75,11 @@ if st.session_state.chat_history:
         st.markdown(a)
         st.divider()
 
+st.write("🛠️ Triggered the Mr. Shaw response!")
+
+
+
+
 # Footer
 st.warning("⚠️ Always follow your site-specific safety plan and consult with a certified trainer.")
 st.caption(f"App version 1.0 — Updated {datetime.now().strftime('%b %d, %Y')}")
