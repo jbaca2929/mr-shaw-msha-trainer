@@ -9,7 +9,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 # Page setup
 st.set_page_config(page_title="Mr. Shaw – MSHA Expert Safety Coach", layout="centered")
 st.title("🛠️ Ask Mr. Shaw – Your MSHA Safety Trainer")
-st.caption("Powered by OpenAI. Designed designed with Certified MSHA Instructors.")
+st.caption("Powered by OpenAI. Designed with Certified MSHA Instructors.")
 
 # Input field
 question = st.text_input("Ask a safety question, regulation, or training need:", placeholder="e.g. What’s required in hazard training for new underground miners?")
