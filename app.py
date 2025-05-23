@@ -22,6 +22,30 @@ mine_type = st.radio("🛠️ What type of mine are you working on?", [
     "Part 48 – Underground Mine"
 ])
 
+# --- Topic Tags (Optional Quick Filters) ---
+st.markdown("### 🧭 Choose a topic or ask your own question:")
+cols = st.columns(5)
+topics = ["Equipment Safety", "Emergency", "Handling", "HazCom", "Fall Prot."]
+for i, topic in enumerate(topics):
+    with cols[i]:
+        st.button(f"📌 {topic}", key=f"topic_{i}")
+
+if "selected_topic" not in st.session_state:
+    st.session_state.selected_topic = ""
+
+# When a topic button is clicked, set it as the default question
+for i, topic in enumerate(topics):
+    with cols[i]:
+        if st.button(f"📌 {topic}", key=f"topic_{i}"):
+            st.session_state.selected_topic = f"What are the MSHA rules for {topic.lower()}?"
+
+# Use the topic or free text input
+st.markdown("### ✏️ What’s your safety question today?")
+user_question = st.text_input(
+    "Type your question below:",
+    value=st.session_state.selected_topic,
+    placeholder="e.g., What are the rules for fall protection?"
+)
 
 
 # --- Question Input ---
