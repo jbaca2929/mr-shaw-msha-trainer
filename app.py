@@ -39,14 +39,15 @@ You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience
 - Context from MSHA documents: {context}
 """
 
-        try:
-            st.success("✅ Mr. Shaw responded:")
+       try:
+    st.success("✅ Mr. Shaw responded:")
     ai_output = f"MSHA requires fall protection whenever miners are exposed to falling more than 6 feet. Regulation: 30 CFR § 56.15005."
     st.markdown(ai_output)
 
-        except Exception as e:
-            st.error("❌ GPT-4 API call failed or timed out:")
-            st.code(str(e))
+except Exception as e:
+    st.error("❌ Error during fallback response:")
+    st.code(str(e))
+
 
 # Footer
 st.caption("App version 1.0 — Debug Mode Enabled")
