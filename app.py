@@ -1,27 +1,29 @@
 import streamlit as st
-import os
 from openai import OpenAI
 
-# Init OpenAI
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+# Initialize OpenAI
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-# Page config
-st.set_page_config(page_title="Mr. Shaw – MSHA Trainer", layout="centered")
-st.title("👷 Mr. Shaw – Your MSHA Trainer")
+# App layout
+st.set_page_config(page_title="Mr. Shaw – MSHA Trainer")
+st.title("👷 Mr. Shaw – MSHA Trainer")
 st.write("MSHA-compliant safety guidance from a certified instructor—just ask.")
 
-# Input
+# Mine type selector
 mine_type = st.radio("🔧 What type of mine are you working on?", [
     "Part 46 – Sand & Gravel",
     "Part 48 – Surface Mine",
     "Part 48 – Underground Mine"
 ])
 
+# User input
 user_question = st.text_input("Type your MSHA safety question:", placeholder="e.g., What are the rules for fall protection?")
 submit = st.button("🔵 Ask Mr. Shaw")
 
+# GPT logic
 if submit and user_question:
-    with st.spinner("⛏️ Mr. Shaw is reviewing the CFR..."):
+    with st.spinner("Mr. Shaw is reviewing the CFR..."):
+
         system_prompt = f"""
 You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience.
 Speak like you're training real miners—direct, practical, and legally correct.
@@ -32,10 +34,6 @@ Speak like you're training real miners—direct, practical, and legally correct.
 - Mine Type: {mine_type}
 - Question: {user_question}
 """
-
-        # Show prompt being sent
-        st.markdown("### 🛠️ Sending this to GPT-4:")
-        st.code(system_prompt)
 
         try:
             response = client.chat.completions.create(
@@ -49,10 +47,11 @@ Speak like you're training real miners—direct, practical, and legally correct.
             )
             answer = response.choices[0].message.content.strip()
             st.success("✅ Mr. Shaw responded:")
-            st.write(answer)
+            st.markdown(answer)
+
         except Exception as e:
-            st.error("❌ GPT-4 call failed:")
+            st.error("❌ GPT call failed:")
             st.code(str(e))
 
-# Debug footer
+# Footer
 st.caption("App version 1.0 — Powered by OpenAI + Streamlit")
