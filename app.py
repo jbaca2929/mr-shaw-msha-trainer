@@ -9,7 +9,7 @@ st.markdown("**MSHA-compliant safety guidance from a certified instructor—just
 
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-# State setup
+# Session state setup
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 if "selected_topic" not in st.session_state:
@@ -19,14 +19,14 @@ if "submit" not in st.session_state:
 if "user_input_snapshot" not in st.session_state:
     st.session_state.user_input_snapshot = ""
 
-# Mine type
+# Mine type selector
 mine_type = st.radio("🛠️ What type of mine are you working on?", [
     "Part 46 – Sand & Gravel",
     "Part 48 – Surface Mine",
     "Part 48 – Underground Mine"
 ])
 
-# Topics
+# Predefined topics
 topics = {
     "Equipment Safety": "What are the MSHA requirements for equipment safety?",
     "Emergency Procedures": "What are MSHA's emergency response rules?",
@@ -37,7 +37,7 @@ topics = {
     "Miners' Rights": "What rights do miners have under MSHA?"
 }
 
-# Topic Buttons
+# Topic button layout
 st.markdown("### 🧭 Choose a topic or ask your own question:")
 cols = st.columns(len(topics))
 for i, (label, question) in enumerate(topics.items()):
@@ -45,10 +45,8 @@ for i, (label, question) in enumerate(topics.items()):
         if st.button(f"📌 {label}", key=f"topic_{i}_{label}"):
             st.session_state.selected_topic = question
 
-# Dynamic Key to Force Input Update
+# Input field
 unique_input_key = f"user_input_{st.session_state.selected_topic or 'default'}"
-
-# Question Input
 st.markdown("### ✏️ What’s your safety question today?")
 user_question = st.text_input(
     label="Type your question below:",
@@ -57,22 +55,22 @@ user_question = st.text_input(
     key=unique_input_key
 )
 
-# Submit Button Logic
+# Submission trigger
 if st.button("🔵 Ask Mr. Shaw"):
     if user_question.strip():
         st.session_state.submit = True
         st.session_state.user_input_snapshot = user_question
 
-# GPT-4 Logic
+# GPT-4 Processing Block
 if st.session_state.submit and st.session_state.user_input_snapshot:
     user_question = st.session_state.user_input_snapshot
-    st.write("🛠 GPT-4 call initiated")
-    st.write(f"Question: {user_question}")
-    st.write(f"Mine Type: {mine_type}")
+    st.write("⚙️ GPT-4 call initiated")
+    st.write(f"**Question:** {user_question}")
+    st.write(f"**Mine Type:** {mine_type}")
 
-    with st.spinner("Mr. Shaw is reviewing the CFR..."):
+    with st.spinner("🧠 Mr. Shaw is reviewing the CFR..."):
         doc = get_simulated_context(user_question)
-        context = doc["snippet"] if doc else "No document matched. Providing general MSHA guidance."
+        context = doc["snippet"] if doc and "snippet" in doc else "No document matched. Providing general MSHA guidance."
 
         system_prompt = f"""
 You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience. Speak like you're training real miners—direct, practical, and legally correct.
@@ -84,42 +82,43 @@ You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience
 - Context from MSHA documents: {context}
 """
 
-st.write("📄 SYSTEM PROMPT:")
-st.code(system_prompt)
+        # Debug prints
+        st.write("📄 SYSTEM PROMPT:")
+        st.code(system_prompt)
 
-st.write("📥 USER QUESTION:")
-st.code(user_question)
+        st.write("📥 USER QUESTION:")
+        st.code(user_question)
 
-st.write("📚 CONTEXT DOC:")
-st.code(doc)
+        st.write("📚 CONTEXT DOC:")
+        st.code(doc)
 
-st.write("📌 SNIPPET:")
-st.code(context)
+        st.write("📌 SNIPPET:")
+        st.code(context)
 
-try:
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_question}
-        ],
-        timeout=20
-    )
+        # GPT-4 call
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_question}
+                ],
+                timeout=20
+            )
 
-    ai_output = response.choices[0].message.content.strip()
-    st.success("✅ GPT-4 responded:")
-    st.code(ai_output)
+            ai_output = response.choices[0].message.content.strip()
+            st.success("✅ GPT-4 responded:")
+            st.code(ai_output)
 
-    formatted = format_response(ai_output, doc)
-    st.session_state.chat_history.append((user_question, formatted))
-    st.session_state.submit = False
+            formatted = format_response(ai_output, doc)
+            st.session_state.chat_history.append((user_question, formatted))
+            st.session_state.submit = False
 
-except Exception as e:
-    st.error("❌ GPT-4 API call failed or timed out:")
-    st.code(str(e))
+        except Exception as e:
+            st.error("❌ GPT-4 API call failed or timed out:")
+            st.code(str(e))
 
-
-# Chat history
+# Display chat history
 if st.session_state.chat_history:
     st.markdown("## 📚 Mr. Shaw's Responses")
     for idx, (q, a) in enumerate(reversed(st.session_state.chat_history)):
