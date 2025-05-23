@@ -16,7 +16,7 @@ st.title("🛠️ Ask Mr. Shaw – Your MSHA Safety Trainer")
 st.caption("Powered by OpenAI. Built with Certified MSHA Instructors.")
 
 # Mining type selection
-mine_type = st.selectbox("Select your mine type:", ["Part 46 (Sand & Gravel)", "Part 48 Surface", "Part 48 Underground"])
+mine_type = st.radio("Select your mine type:", ["Part 46 (Sand & Gravel)", "Part 48 Surface", "Part 48 Underground"])
 
 # Question input
 question = st.text_input("Ask a safety question, regulation, or training need:", placeholder="e.g. What’s required in hazard training for new miners?")
