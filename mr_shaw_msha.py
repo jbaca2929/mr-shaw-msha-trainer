@@ -3,7 +3,7 @@ import os
 from openai import OpenAI
 
 # Initialize OpenAI client with modern v1+ SDK
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Streamlit UI
 st.set_page_config(page_title="Mr. Shaw – MSHA Trainer", layout="centered")
