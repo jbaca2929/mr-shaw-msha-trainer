@@ -8,7 +8,7 @@ st.set_page_config(page_title="Mr. Shaw – MSHA Trainer")
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 def main():
-    st.title("👷 Mr. Shaw – MSHA Trainer")
+    st.title("👷 Mr. Shaw – Your MSHA Trainer")
     st.write("MSHA-compliant safety guidance from a certified instructor—just ask.")
 
     # Input fields
@@ -20,6 +20,8 @@ def main():
 
     user_question = st.text_input("Type your MSHA safety question:")
     submit = st.button("🔵 Ask Mr. Shaw")
+print("Submit state:", submit)
+
 
     # Debug block
     st.markdown("### 🪪 Debug info:")
