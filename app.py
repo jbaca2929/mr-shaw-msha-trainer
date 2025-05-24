@@ -1,16 +1,19 @@
 import streamlit as st
 from openai import OpenAI
 
-# Initialize OpenAI client
-client = OpenAI(
-    api_key=st.secrets["OPENAI_API_KEY"],
-    organization=st.secrets.get("OPENAI_ORG_ID", None),
-    project=st.secrets.get("OPENAI_PROJECT_ID", None)
-)
+# Debug: confirm OpenAI client initialization
+try:
+    client = OpenAI(
+        api_key=st.secrets["OPENAI_API_KEY"],
+        organization=st.secrets.get("OPENAI_ORG_ID", None),
+        project=st.secrets.get("OPENAI_PROJECT_ID", None)
+    )
+    print("✅ OpenAI client initialized.")
+except Exception as init_error:
+    st.error(f"❌ Failed to initialize OpenAI client: {init_error}")
+    print(f"❌ OpenAI Init Error: {init_error}")
 
-print("🔑 OpenAI client initialized.")
-
-# Page config
+# UI layout
 st.set_page_config(page_title="Mr. Shaw – Your MSHA Trainer")
 st.title("👷 Mr. Shaw – Your MSHA Trainer")
 st.markdown("Ask an MSHA safety question and Mr. Shaw will answer based on official CFR guidance.")
@@ -28,57 +31,57 @@ mine_type = st.radio(
 # Question input
 user_question = st.text_input("Type your MSHA safety question:")
 
-# Ask button logic
+# Button trigger
 if st.button("Ask Mr. Shaw"):
     if not user_question or user_question.strip() == "":
         st.warning("Please type a question before submitting.")
     else:
-        print("✅ Button clicked with question:", user_question)
+        print("✅ Button clicked. User question:", user_question)
         with st.spinner("Mr. Shaw is reviewing the CFR..."):
             system_prompt = f"""
 You are Mr. Shaw, a certified MSHA instructor with over 30 years of experience. When a miner asks a safety question,
 you respond as a structured MSHA instructor—not a chatbot. Provide clear, CFR-based training guidance.
 
-Use this format for your response:
+Use this format:
 ------------------------------
 🟦 **Module Title: [Insert Topic]**
 
 ### 📍 What to Do or Where to File
-- Bullet points with clear steps
-- Emphasize key actions
-- Use real links like [MSHA.gov](https://www.msha.gov)
+- Bullet points with clear actions
+- Emphasize key steps
+- Include real links like [MSHA.gov](https://www.msha.gov)
 
 ### 📝 Information Needed
-- List specific items or steps needed
-- Explain how to complete reports, file complaints, or comply
+- List specific steps or documentation
+- Explain what's required and why
 
-📘 **CFR Reference**: Include the exact 30 CFR or Mine Act section
+📘 **CFR Reference**: Include the exact 30 CFR or Mine Act citation
 
 ------------------------------
 
-Only cite MSHA CFR rules—do not refer to OSHA or generalize. Always align your answer with federal mine safety law.
+Only use MSHA regulations. Do not reference OSHA. No generalizations. Base everything strictly on 30 CFR.
 
 This miner is working under: {mine_type}
 """
 
             try:
-                print("📤 Sending request to OpenAI...")
+                print("📤 Sending to OpenAI...")
                 response = client.chat.completions.create(
-                    model="gpt-3.5-turbo",  # change to "gpt-4" if you regain access
+                    model="gpt-3.5-turbo",  # safest model for now
                     messages=[
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_question}
                     ]
                 )
-                print("📥 Response received.")
+                print("📥 OpenAI responded.")
                 answer = response.choices[0].message.content
                 st.success("Mr. Shaw says:")
                 st.markdown(answer)
             except Exception as e:
-                st.error(f"An error occurred while contacting OpenAI: {e}")
+                st.error(f"❌ OpenAI request failed: {e}")
                 print(f"❌ OpenAI Error: {e}")
 
-# Disclaimer footer
+# Footer disclaimer
 st.markdown("""
 ---
 **Disclaimer:** Mr. Shaw is an AI-powered assistant. While he draws on official MSHA CFR sources to provide guidance, 
