@@ -3,12 +3,10 @@ from openai import OpenAI
 import os
 
 app = Flask(__name__)
-
-# Load secrets from environment or directly
 client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY"),
-    organization=os.getenv("OPENAI_ORG_ID"),
-    project=os.getenv("OPENAI_PROJECT_ID")
+    api_key=os.environ.get("OPENAI_API_KEY"),
+    organization=os.environ.get("OPENAI_ORG_ID"),
+    project=os.environ.get("OPENAI_PROJECT_ID")
 )
 
 @app.route("/ask-mr-shaw", methods=["POST"])
@@ -19,11 +17,9 @@ def ask_mr_shaw():
 
     if not question:
         return jsonify({"error": "Missing question"}), 400
-
     if not mine_type:
         return jsonify({"error": "Missing mine type"}), 400
 
-    # Regulatory filter logic
     if "Part 46" in mine_type:
         allowed_cfr = "Only cite regulations from 30 CFR Part 46. Do not include references to Part 48 or Part 56."
     elif "Underground" in mine_type:
@@ -31,26 +27,7 @@ def ask_mr_shaw():
     else:
         allowed_cfr = "Only cite regulations from 30 CFR Part 48 Subpart B. Do not include references to Part 46 or Part 56."
 
-    system_prompt = f"""
-You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience. Respond using official CFR standards only.
-
-Use this format:
-------------------------------
-🟦 **Module Title: [Insert Topic]**
-
-### 📍 What to Do or Where to File
-- Clear bullet list of steps
-- Link to [MSHA.gov](https://www.msha.gov) if needed
-
-### 📝 Information Needed
-- Bullet list of records, documentation, or proof
-
-📘 **CFR Reference**: Include relevant CFR citations
-
-------------------------------
-The miner works under: {mine_type}.
-{allowed_cfr}
-"""
+    system_prompt = f\"\"\"\nYou are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience. Respond using official CFR standards only.\nThe miner works under: {mine_type}.\n{allowed_cfr}\n\"\"\".strip()
 
     try:
         response = client.chat.completions.create(
@@ -62,9 +39,8 @@ The miner works under: {mine_type}.
         )
         answer = response.choices[0].message.content.strip()
         return jsonify({"answer": answer})
-
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True)
