@@ -1,11 +1,12 @@
 import streamlit as st
 from openai import OpenAI
 
-# Set page config
-st.set_page_config(page_title="Mr. Shaw – MSHA Trainer")
+client = OpenAI(
+    api_key=st.secrets["OPENAI_API_KEY"],
+    organization=st.secrets.get("OPENAI_ORG_ID", None),
+    project=st.secrets.get("OPENAI_PROJECT_ID", None)
+)
 
-# Initialize OpenAI client
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # App title and intro
 st.title("👷 Mr. Shaw – MSHA Trainer")
