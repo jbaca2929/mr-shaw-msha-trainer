@@ -9,6 +9,10 @@ client = OpenAI(
     project=os.environ.get("OPENAI_PROJECT_ID", None)
 )
 
+@app.route("/", methods=["GET"])
+def index():
+    return "Mr. Shaw MSHA Trainer API is running. Use the /ask-mr-shaw POST endpoint to submit questions."
+
 @app.route("/ask-mr-shaw", methods=["POST"])
 def ask_mr_shaw():
     data = request.json
@@ -20,7 +24,6 @@ def ask_mr_shaw():
     if not mine_type:
         return jsonify({"error": "Missing mine type"}), 400
 
-    # Determine the correct CFR limitation
     if "Part 46" in mine_type:
         allowed_cfr = "Only cite regulations from 30 CFR Part 46. Do not include references to Part 48 or Part 56."
     elif "Underground" in mine_type:
@@ -28,42 +31,27 @@ def ask_mr_shaw():
     else:
         allowed_cfr = "Only cite regulations from 30 CFR Part 48 Subpart B. Do not include references to Part 46 or Part 56."
 
-    # Dynamic section title based on the question
-    lowered_question = question.lower()
-    if any(word in lowered_question for word in ["file", "report"]):
-        section_title = "📨 Where to Report or File a Complaint"
-    elif "right" in lowered_question:
-        section_title = "🛡️ Your MSHA Rights"
-    elif any(word in lowered_question for word in ["how", "do i", "steps"]):
-        section_title = "📍 Steps to Follow"
-    elif any(word in lowered_question for word in ["what is", "define", "tell me"]):
-        section_title = "📘 What You Need to Know"
-    elif any(word in lowered_question for word in ["requirement", "need", "mandatory"]):
-        section_title = "📋 MSHA Requirements"
-    else:
-        section_title = "📌 Guidance Based on CFR"
-
     system_prompt = f"""
-You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience.
-Respond using official CFR standards only.
+You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience. Respond using official CFR standards only.
 The miner works under: {mine_type}.
 {allowed_cfr}
 
-Respond in this markdown format:
+Respond in this format:
 
-🟦 **Module Title: {question}**
+🟦 **Module Title: [Insert Topic Based on Question]**
 
-### {section_title}
-- Bullet list of clear, practical answers
+### 📘 Summary
+- One paragraph summary of key guidance.
 
-### 📝 Information Needed
-- List any documentation, records, or training miners should maintain
+### 🔎 Key Actions
+- Bullet list of practical actions or safety rules
 
-📘 **CFR Reference**: Include specific CFR citations only from the allowed part
+### 📂 Documentation Required
+- Bullet list of required forms, logs, or certifications
 
----
+📚 **CFR Reference**: Include the specific 30 CFR section(s) or Mine Act citations.
 
-🔎 **Disclaimer:** This response is for informational purposes only. It does not replace formal MSHA training, legal interpretation, or compliance obligations. Always confirm with a certified MSHA trainer or inspector.
+⚠️ **Disclaimer**: This answer is informational only. Always consult an MSHA inspector or trainer for site-specific compliance.
 """.strip()
 
     try:
@@ -76,5 +64,10 @@ Respond in this markdown format:
         )
         answer = response.choices[0].message.content.strip()
         return jsonify({"answer": answer})
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
