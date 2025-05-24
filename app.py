@@ -7,45 +7,46 @@ client = OpenAI(
     project=st.secrets.get("OPENAI_PROJECT_ID", None)
 )
 
-
-# App title and intro
+st.set_page_config(page_title="Mr. Shaw – Your MSHA Trainer")
 st.title("👷 Mr. Shaw – MSHA Trainer")
-st.write("""
+st.markdown("""
 Ask an MSHA safety question and Mr. Shaw will answer based on official CFR guidance.
 """)
 
-# Select mine type
-mine_type = st.selectbox(
+mine_type = st.radio(
     "Select your mine type:",
-    ["Part 46 – Sand & Gravel", "Part 48 – Surface Mine", "Part 48 – Underground Mine"]
+    [
+        "Part 46 – Sand & Gravel",
+        "Part 48 – Surface Mine",
+        "Part 48 – Underground Mine"
+    ]
 )
 
-# User question
-user_question = st.text_input("What is your MSHA safety question?")
+question = st.text_input("What is your MSHA safety question?")
+submit = st.button("Ask Mr. Shaw")
 
-# Submit
-if st.button("Ask Mr. Shaw"):
-    if not user_question:
-        st.warning("Please enter a question before submitting.")
-    else:
-        with st.spinner("Mr. Shaw is reviewing the CFR..."):
-            system_prompt = f"""
-            You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience.
-            Answer this safety question in detail based on MSHA CFR guidelines.
-            Be clear, practical, and include citations when possible.
-            The miner works in this environment: {mine_type}
-            """
+if submit and question:
+    with st.spinner("Mr. Shaw is reviewing the CFR..."):
+        system_prompt = f"""
+        You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience.
+        Answer this safety question in detail based strictly on MSHA CFR guidelines.Not OSHA.
+        Never mention fall protection at 4 feet unless explicitly cited in CFR.
+        Be clear, practical, and include citations when possible.
+        The user is working under: {mine_type}
+        """
 
-            try:
-                response = client.chat.completions.create(
-                    model="gpt-4.1-turbo",
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_question}
-                    ]
-                )
-                answer = response.choices[0].message.content
-                st.success("Mr. Shaw says:")
-                st.write(answer)
-            except Exception as e:
-                st.error(f"Something went wrong: {e}")
+        completion = client.chat.completions.create(
+            model="gpt-4.1-turbo",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": question}
+            ]
+        )
+
+        st.success("Mr. Shaw says:")
+        st.write(completion.choices[0].message.content)
+
+st.markdown("""
+---
+**Disclaimer:** Mr. Shaw is an AI-powered assistant. While he draws on official MSHA CFR sources to provide guidance, his responses are not a substitute for formal training, legal advice, or direct MSHA consultation. Always verify compliance with a certified instructor or MSHA official.
+""")
