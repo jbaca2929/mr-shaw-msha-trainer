@@ -74,7 +74,7 @@ This miner is working under: {mine_type}
 
         try:
             response = client.chat.completions.create(
-                model="gpt-40",
+                model="gpt-4.1-turbo",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": final_question}
