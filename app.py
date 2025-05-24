@@ -77,7 +77,7 @@ The miner is working under: {mine_type}.
         try:
             print("📤 Calling OpenAI API...")
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",  # safest model for compatibility
+                model="gpt-4.1-turbo",  # safest model for compatibility
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_question}
