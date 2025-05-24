@@ -4,13 +4,18 @@ from openai import OpenAI
 import os
 
 app = Flask(__name__)
-CORS(app)  # <--- THIS enables CORS support for all origins
+CORS(app)  # Enables CORS for all routes
 
+# Initialize OpenAI client
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),
     organization=os.environ.get("OPENAI_ORG_ID", None),
     project=os.environ.get("OPENAI_PROJECT_ID", None)
 )
+
+@app.route("/")
+def home():
+    return "Mr. Shaw backend is running.", 200
 
 @app.route("/ask-mr-shaw", methods=["POST"])
 def ask_mr_shaw():
@@ -24,21 +29,21 @@ def ask_mr_shaw():
         return jsonify({"error": "Missing mine type"}), 400
 
     if "Part 46" in mine_type:
-        allowed_cfr = "Only cite regulations from 30 CFR Part 46."
+        allowed_cfr = "Only cite regulations from 30 CFR Part 46. Do not include references to Part 48 or Part 56."
     elif "Underground" in mine_type:
-        allowed_cfr = "Only cite regulations from 30 CFR Part 48 Subpart A."
+        allowed_cfr = "Only cite regulations from 30 CFR Part 48 Subpart A. Do not include references to Part 46 or Part 56."
     else:
-        allowed_cfr = "Only cite regulations from 30 CFR Part 48 Subpart B."
+        allowed_cfr = "Only cite regulations from 30 CFR Part 48 Subpart B. Do not include references to Part 46 or Part 56."
 
     system_prompt = f"""
-You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience. 
-Respond using official CFR standards only. 
-The miner works under: {mine_type}. {allowed_cfr}
-"""
+You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience. Respond using official CFR standards only.
+The miner works under: {mine_type}.
+{allowed_cfr}
+""".strip()
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": question}
