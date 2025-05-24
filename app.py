@@ -22,11 +22,23 @@ mine_type = st.radio(
     ]
 )
 
-question = st.text_input("Type your MSHA safety question:")
+common_questions = [
+    "What are my miners' rights?",
+    "What is fall protection?",
+    "What is required PPE?",
+    "What is a workplace examination?",
+    "What training do new miners need?"
+]
 
-submit = st.button("Ask Mr. Shaw")
+selected_common = st.radio("Or choose a common question:", common_questions, index=None, key="preset")
 
-if submit and question:
+# Sync the text input with the selected radio button
+if selected_common:
+    st.session_state["custom"] = selected_common
+
+user_question = st.text_input("Or type your own MSHA safety question:", value=st.session_state.get("custom", ""), key="custom")
+
+if st.button("Ask Mr. Shaw") and user_question:
     with st.spinner("Mr. Shaw is reviewing the CFR..."):
         system_prompt = f"""
         You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience.
@@ -36,16 +48,18 @@ if submit and question:
         The user is working under: {mine_type}
         """
 
-        response = client.chat.completions.create(
-            model="gpt-4.1-turbo",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": question}
-            ]
-        )
-
-        st.success("Mr. Shaw says:")
-        st.write(response.choices[0].message.content)
+        try:
+            response = client.chat.completions.create(
+                model="gpt-4.1-turbo",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_question}
+                ]
+            )
+            st.success("Mr. Shaw says:")
+            st.write(response.choices[0].message.content)
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
 
 st.markdown("""
 ---
