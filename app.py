@@ -8,12 +8,12 @@ client = OpenAI(
     project=st.secrets.get("OPENAI_PROJECT_ID", None)
 )
 
-# UI layout
+print("🔑 OpenAI client initialized.")
+
+# Page config
 st.set_page_config(page_title="Mr. Shaw – Your MSHA Trainer")
 st.title("👷 Mr. Shaw – Your MSHA Trainer")
-st.markdown("""
-Ask an MSHA safety question and Mr. Shaw will answer based on official CFR guidance.
-""")
+st.markdown("Ask an MSHA safety question and Mr. Shaw will answer based on official CFR guidance.")
 
 # Mine type selection
 mine_type = st.radio(
@@ -25,70 +25,60 @@ mine_type = st.radio(
     ]
 )
 
-# Custom or common question inputs
-custom_question = st.text_input("Type your MSHA safety question:", placeholder="e.g. What is required PPE?")
-common_question = st.selectbox("Or choose a common question:", [
-    "",
-    "What are my miners' rights?",
-    "What is fall protection?",
-    "What is required PPE?",
-    "What is a workplace examination?",
-    "What training do new miners need?"
-])
+# Question input
+user_question = st.text_input("Type your MSHA safety question:")
 
 # Ask button logic
 if st.button("Ask Mr. Shaw"):
-    final_question = custom_question if custom_question.strip() else common_question
-
-    if not final_question or final_question.strip() == "":
-        st.warning("Please enter or select a question first.")
+    if not user_question or user_question.strip() == "":
+        st.warning("Please type a question before submitting.")
     else:
+        print("✅ Button clicked with question:", user_question)
         with st.spinner("Mr. Shaw is reviewing the CFR..."):
             system_prompt = f"""
 You are Mr. Shaw, a certified MSHA instructor with over 30 years of experience. When a miner asks a safety question,
-you respond as a structured field instructor—not a chatbot. You teach clearly, use proper headings, cite the correct CFRs,
-and guide them like they’re in training.
+you respond as a structured MSHA instructor—not a chatbot. Provide clear, CFR-based training guidance.
 
-Use this format for your reply:
+Use this format for your response:
 ------------------------------
 🟦 **Module Title: [Insert Topic]**
 
-🎙️ **Voice Prompt**: “...” ← Say this out loud to introduce the topic.
-
 ### 📍 What to Do or Where to File
-- Bullet points with clear actions
-- Emphasize steps in bold
+- Bullet points with clear steps
+- Emphasize key actions
 - Use real links like [MSHA.gov](https://www.msha.gov)
 
 ### 📝 Information Needed
-- Bullet points
-- Be specific and practical
+- List specific items or steps needed
+- Explain how to complete reports, file complaints, or comply
 
-📘 **CFR Reference**: Include exact 30 CFR or Mine Act citation
+📘 **CFR Reference**: Include the exact 30 CFR or Mine Act section
 
-🎙️ **Voice Prompt**: “...” ← A closing reminder in voice style
 ------------------------------
 
-Only use MSHA standards—not OSHA. Do not generalize fall protection, training, or safety requirements unless explicitly cited in 30 CFR.
+Only cite MSHA CFR rules—do not refer to OSHA or generalize. Always align your answer with federal mine safety law.
 
 This miner is working under: {mine_type}
 """
 
             try:
+                print("📤 Sending request to OpenAI...")
                 response = client.chat.completions.create(
-                    model="gpt-4",  # use "gpt-3.5-turbo" if needed for access
+                    model="gpt-3.5-turbo",  # change to "gpt-4" if you regain access
                     messages=[
                         {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": final_question}
+                        {"role": "user", "content": user_question}
                     ]
                 )
+                print("📥 Response received.")
                 answer = response.choices[0].message.content
                 st.success("Mr. Shaw says:")
                 st.markdown(answer)
             except Exception as e:
-                st.error(f"An error occurred: {e}")
+                st.error(f"An error occurred while contacting OpenAI: {e}")
+                print(f"❌ OpenAI Error: {e}")
 
-# Footer disclaimer
+# Disclaimer footer
 st.markdown("""
 ---
 **Disclaimer:** Mr. Shaw is an AI-powered assistant. While he draws on official MSHA CFR sources to provide guidance, 
