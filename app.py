@@ -8,7 +8,7 @@ client = OpenAI(
 )
 
 st.set_page_config(page_title="Mr. Shaw – Your MSHA Trainer")
-st.title("👷 Mr. Shaw – MSHA Trainer")
+st.title("👷 Mr. Shaw – Your MSHA Trainer")
 st.markdown("""
 Ask an MSHA safety question and Mr. Shaw will answer based on official CFR guidance.
 """)
