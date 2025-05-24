@@ -3,8 +3,11 @@ from flask_cors import CORS
 from openai import OpenAI
 import os
 
+# Initialize Flask app
 app = Flask(__name__)
-CORS(app)  # Enables CORS for all routes
+
+# Enable CORS for all domains (use specific origins in production)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Initialize OpenAI client
 client = OpenAI(
@@ -12,10 +15,6 @@ client = OpenAI(
     organization=os.environ.get("OPENAI_ORG_ID", None),
     project=os.environ.get("OPENAI_PROJECT_ID", None)
 )
-
-@app.route("/")
-def home():
-    return "Mr. Shaw backend is running.", 200
 
 @app.route("/ask-mr-shaw", methods=["POST"])
 def ask_mr_shaw():
@@ -28,6 +27,7 @@ def ask_mr_shaw():
     if not mine_type:
         return jsonify({"error": "Missing mine type"}), 400
 
+    # Determine CFR reference scope
     if "Part 46" in mine_type:
         allowed_cfr = "Only cite regulations from 30 CFR Part 46. Do not include references to Part 48 or Part 56."
     elif "Underground" in mine_type:
@@ -35,11 +35,25 @@ def ask_mr_shaw():
     else:
         allowed_cfr = "Only cite regulations from 30 CFR Part 48 Subpart B. Do not include references to Part 46 or Part 56."
 
-    system_prompt = f"""
-You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience. Respond using official CFR standards only.
+    # Construct system prompt
+    system_prompt = f"""You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience. Respond using official CFR standards only.
 The miner works under: {mine_type}.
 {allowed_cfr}
-""".strip()
+
+Structure your answer using this format:
+------------------------------
+🟦 **Module Title: [Insert Topic]**
+
+### 📍 What to Do or Where to File
+- Bullet list of steps, actions, or key guidance
+- If applicable, include a link to [MSHA.gov](https://www.msha.gov)
+
+### 📝 Information Needed
+- Bullet list of any required forms, documentation, or safety data
+
+📘 **CFR Reference**: Always include at least one CFR reference
+------------------------------
+"""
 
     try:
         response = client.chat.completions.create(
