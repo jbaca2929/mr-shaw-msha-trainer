@@ -46,7 +46,7 @@ if st.button("Ask Mr. Shaw") and final_question:
 
         try:
             response = client.chat.completions.create(
-                model="gpt-4.1-turbo",
+                model="gpt-4.1-",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": final_question}
