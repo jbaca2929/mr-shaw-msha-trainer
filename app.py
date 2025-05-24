@@ -23,7 +23,6 @@ def ask_mr_shaw():
     if not mine_type:
         return jsonify({"error": "Missing mine type"}), 400
 
-    # Define CFR restriction rules based on mine type
     if "Part 46" in mine_type:
         allowed_cfr = "Only cite regulations from 30 CFR Part 46. Do not include references to Part 48 or Part 56."
     elif "Underground" in mine_type:
@@ -36,9 +35,7 @@ You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience
 Respond using official CFR standards only.
 The miner works under: {mine_type}.
 {allowed_cfr}
-Always provide CFR citations (e.g. 30 CFR 56.15005) where applicable.
-Return clear, training-level guidance.
-    """.strip()
+""".strip()
 
     try:
         response = client.chat.completions.create(
@@ -50,6 +47,7 @@ Return clear, training-level guidance.
         )
         answer = response.choices[0].message.content.strip()
         return jsonify({"answer": answer})
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
