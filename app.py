@@ -3,13 +3,9 @@ from flask_cors import CORS
 from openai import OpenAI
 import os
 
-# Initialize Flask app
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all origins
 
-# Enable CORS for all domains (use specific origins in production)
-CORS(app, resources={r"/*": {"origins": "*"}})
-
-# Initialize OpenAI client
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),
     organization=os.environ.get("OPENAI_ORG_ID", None),
@@ -27,7 +23,7 @@ def ask_mr_shaw():
     if not mine_type:
         return jsonify({"error": "Missing mine type"}), 400
 
-    # Determine CFR reference scope
+    # Define CFR restriction rules based on mine type
     if "Part 46" in mine_type:
         allowed_cfr = "Only cite regulations from 30 CFR Part 46. Do not include references to Part 48 or Part 56."
     elif "Underground" in mine_type:
@@ -35,29 +31,18 @@ def ask_mr_shaw():
     else:
         allowed_cfr = "Only cite regulations from 30 CFR Part 48 Subpart B. Do not include references to Part 46 or Part 56."
 
-    # Construct system prompt
-    system_prompt = f"""You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience. Respond using official CFR standards only.
+    system_prompt = f"""
+You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience.
+Respond using official CFR standards only.
 The miner works under: {mine_type}.
 {allowed_cfr}
-
-Structure your answer using this format:
-------------------------------
-🟦 **Module Title: [Insert Topic]**
-
-### 📍 What to Do or Where to File
-- Bullet list of steps, actions, or key guidance
-- If applicable, include a link to [MSHA.gov](https://www.msha.gov)
-
-### 📝 Information Needed
-- Bullet list of any required forms, documentation, or safety data
-
-📘 **CFR Reference**: Always include at least one CFR reference
-------------------------------
-"""
+Always provide CFR citations (e.g. 30 CFR 56.15005) where applicable.
+Return clear, training-level guidance.
+    """.strip()
 
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": question}
@@ -67,3 +52,6 @@ Structure your answer using this format:
         return jsonify({"answer": answer})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+if __name__ == "__main__":
+    app.run(debug=True)
