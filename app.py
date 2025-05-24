@@ -3,6 +3,7 @@ from openai import OpenAI
 import os
 
 app = Flask(__name__)
+
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),
     organization=os.environ.get("OPENAI_ORG_ID"),
@@ -27,7 +28,11 @@ def ask_mr_shaw():
     else:
         allowed_cfr = "Only cite regulations from 30 CFR Part 48 Subpart B. Do not include references to Part 46 or Part 56."
 
-    system_prompt = f\"\"\"\nYou are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience. Respond using official CFR standards only.\nThe miner works under: {mine_type}.\n{allowed_cfr}\n\"\"\".strip()
+    system_prompt = f"""
+You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience.
+Respond using official CFR standards only. The miner works under: {mine_type}.
+{allowed_cfr}
+""".strip()
 
     try:
         response = client.chat.completions.create(
@@ -39,8 +44,9 @@ def ask_mr_shaw():
         )
         answer = response.choices[0].message.content.strip()
         return jsonify({"answer": answer})
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
