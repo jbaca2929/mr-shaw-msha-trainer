@@ -8,8 +8,8 @@ CORS(app)  # Enable CORS for all origins
 
 client = OpenAI(
     api_key=os.environ.get("OPENAI_API_KEY"),
-    organization=os.environ.get("OPENAI_ORG_ID", None),
-    project=os.environ.get("OPENAI_PROJECT_ID", None)
+    organization=os.environ.get("OPENAI_ORG_ID"),  # optional, can remove
+    project=os.environ.get("OPENAI_PROJECT_ID")     # required for sk-proj keys
 )
 
 @app.route("/ask-mr-shaw", methods=["POST"])
@@ -23,6 +23,7 @@ def ask_mr_shaw():
     if not mine_type:
         return jsonify({"error": "Missing mine type"}), 400
 
+    # Set CFR restriction rules
     if "Part 46" in mine_type:
         allowed_cfr = "Only cite regulations from 30 CFR Part 46. Do not include references to Part 48 or Part 56."
     elif "Underground" in mine_type:
@@ -30,16 +31,16 @@ def ask_mr_shaw():
     else:
         allowed_cfr = "Only cite regulations from 30 CFR Part 48 Subpart B. Do not include references to Part 46 or Part 56."
 
-    system_prompt = f"""
-You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience.
-Respond using official CFR standards only.
-The miner works under: {mine_type}.
-{allowed_cfr}
-""".strip()
+    system_prompt = (
+        f"You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience. "
+        f"Respond using official CFR standards only.\n"
+        f"The miner works under: {mine_type}.\n"
+        f"{allowed_cfr}"
+    )
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4",  # use "gpt-4" or "gpt-3.5-turbo" depending on access
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": question}
@@ -47,9 +48,5 @@ The miner works under: {mine_type}.
         )
         answer = response.choices[0].message.content.strip()
         return jsonify({"answer": answer})
-
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-if __name__ == "__main__":
-    app.run(debug=True)
