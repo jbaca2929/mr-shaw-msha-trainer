@@ -22,7 +22,7 @@ if st.button("Ask Mr. Shaw"):
         with st.spinner("Mr. Shaw is reviewing the CFR..."):
             try:
                 response = requests.post(
-                    "https://mr-shaw-msha-trainer.onrender.com/ask-mr-shaw",
+                   "https://mr-shaw-msha-trainer.onrender.com/ask-mr-shaw",
                     headers={"Content-Type": "application/json"},
                     json={
                         "question": question,
