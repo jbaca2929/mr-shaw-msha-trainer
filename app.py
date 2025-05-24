@@ -1,21 +1,21 @@
 import streamlit as st
 from openai import OpenAI
 
-# Initialize OpenAI client with project-based structure
+# Initialize OpenAI client
 client = OpenAI(
     api_key=st.secrets["OPENAI_API_KEY"],
     organization=st.secrets.get("OPENAI_ORG_ID", None),
     project=st.secrets.get("OPENAI_PROJECT_ID", None)
 )
 
-# App layout
+# UI layout
 st.set_page_config(page_title="Mr. Shaw – Your MSHA Trainer")
 st.title("👷 Mr. Shaw – Your MSHA Trainer")
 st.markdown("""
 Ask an MSHA safety question and Mr. Shaw will answer based on official CFR guidance.
 """)
 
-# Mine type selector
+# Mine type selection
 mine_type = st.radio(
     "Select your mine type:",
     [
@@ -25,7 +25,7 @@ mine_type = st.radio(
     ]
 )
 
-# Input and common question options
+# Custom or common question inputs
 custom_question = st.text_input("Type your MSHA safety question:", placeholder="e.g. What is required PPE?")
 common_question = st.selectbox("Or choose a common question:", [
     "",
@@ -36,13 +36,15 @@ common_question = st.selectbox("Or choose a common question:", [
     "What training do new miners need?"
 ])
 
-# Determine which question to use
-final_question = custom_question or common_question
+# Ask button logic
+if st.button("Ask Mr. Shaw"):
+    final_question = custom_question if custom_question.strip() else common_question
 
-# Submit button
-if st.button("Ask Mr. Shaw") and final_question:
-    with st.spinner("Mr. Shaw is reviewing the CFR..."):
-        system_prompt = f"""
+    if not final_question or final_question.strip() == "":
+        st.warning("Please enter or select a question first.")
+    else:
+        with st.spinner("Mr. Shaw is reviewing the CFR..."):
+            system_prompt = f"""
 You are Mr. Shaw, a certified MSHA instructor with over 30 years of experience. When a miner asks a safety question,
 you respond as a structured field instructor—not a chatbot. You teach clearly, use proper headings, cite the correct CFRs,
 and guide them like they’re in training.
@@ -72,21 +74,21 @@ Only use MSHA standards—not OSHA. Do not generalize fall protection, training,
 This miner is working under: {mine_type}
 """
 
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": final_question}
-                ]
-            )
-            answer = response.choices[0].message.content
-            st.success("Mr. Shaw says:")
-            st.markdown(answer)
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
+            try:
+                response = client.chat.completions.create(
+                    model="gpt-4",  # use "gpt-3.5-turbo" if needed for access
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": final_question}
+                    ]
+                )
+                answer = response.choices[0].message.content
+                st.success("Mr. Shaw says:")
+                st.markdown(answer)
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
 
-# Disclaimer footer
+# Footer disclaimer
 st.markdown("""
 ---
 **Disclaimer:** Mr. Shaw is an AI-powered assistant. While he draws on official MSHA CFR sources to provide guidance, 
