@@ -22,7 +22,7 @@ mine_type = st.radio(
     ]
 )
 
-suggested_questions = [
+common_questions = [
     "What are my miners' rights?",
     "What is fall protection?",
     "What is required PPE?",
@@ -30,18 +30,16 @@ suggested_questions = [
     "What training do new miners need?"
 ]
 
-custom_question = st.text_input(
-    "Type your MSHA safety question:",
-    placeholder="e.g. What is required PPE?",
-    value=""
-)
+custom_input = st.text_input("Type your MSHA safety question:")
+selected_common = None
 
-if not custom_question:
-    custom_question = st.selectbox("Or choose a common question:", suggested_questions)
+if not custom_input:
+    selected_common = st.selectbox("Or choose a common question:", common_questions)
 
 submit = st.button("Ask Mr. Shaw")
 
-if submit and custom_question:
+if submit and (custom_input or selected_common):
+    user_question = custom_input if custom_input else selected_common
     with st.spinner("Mr. Shaw is reviewing the CFR..."):
         system_prompt = f"""
         You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience.
@@ -55,7 +53,7 @@ if submit and custom_question:
             model="gpt-4.1-turbo",
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": custom_question}
+                {"role": "user", "content": user_question}
             ]
         )
 
