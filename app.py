@@ -22,22 +22,26 @@ mine_type = st.radio(
     ]
 )
 
-preselected_question = st.radio(
-    "Or choose a common question:",
-    [
-        "What are my miners' rights?",
-        "What is fall protection?",
-        "What is required PPE?",
-        "What is a workplace examination?",
-        "What training do new miners need?"
-    ]
+question_options = [
+    "What are my miners' rights?",
+    "What is fall protection?",
+    "What is required PPE?",
+    "What is a workplace examination?",
+    "What training do new miners need?"
+]
+
+selected_question = st.radio("Or choose a common question:", question_options)
+
+# Autofill the text input field based on selected radio question
+custom_question = st.text_input(
+    "Or type your own MSHA safety question:",
+    value=selected_question if selected_question else ""
 )
 
-custom_question = st.text_input("Or type your own MSHA safety question:")
 submit = st.button("Ask Mr. Shaw")
 
-if submit and (custom_question or preselected_question):
-    user_question = custom_question if custom_question else preselected_question
+if submit and custom_question:
+    user_question = custom_question
     with st.spinner("Mr. Shaw is reviewing the CFR..."):
         system_prompt = f"""
         You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience.
