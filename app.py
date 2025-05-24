@@ -22,7 +22,7 @@ mine_type = st.radio(
     ]
 )
 
-common_questions = [
+suggested_questions = [
     "What are my miners' rights?",
     "What is fall protection?",
     "What is required PPE?",
@@ -30,15 +30,18 @@ common_questions = [
     "What training do new miners need?"
 ]
 
-selected_common = st.radio("Or choose a common question:", common_questions, index=None, key="preset")
+custom_question = st.text_input(
+    "Type your MSHA safety question:",
+    placeholder="e.g. What is required PPE?",
+    value=""
+)
 
-# Sync the text input with the selected radio button
-if selected_common:
-    st.session_state["custom"] = selected_common
+if not custom_question:
+    custom_question = st.selectbox("Or choose a common question:", suggested_questions)
 
-user_question = st.text_input("Or type your own MSHA safety question:", value=st.session_state.get("custom", ""), key="custom")
+submit = st.button("Ask Mr. Shaw")
 
-if st.button("Ask Mr. Shaw") and user_question:
+if submit and custom_question:
     with st.spinner("Mr. Shaw is reviewing the CFR..."):
         system_prompt = f"""
         You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience.
@@ -48,18 +51,16 @@ if st.button("Ask Mr. Shaw") and user_question:
         The user is working under: {mine_type}
         """
 
-        try:
-            response = client.chat.completions.create(
-                model="gpt-4.1-turbo",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_question}
-                ]
-            )
-            st.success("Mr. Shaw says:")
-            st.write(response.choices[0].message.content)
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
+        response = client.chat.completions.create(
+            model="gpt-4.1-turbo",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": custom_question}
+            ]
+        )
+
+        st.success("Mr. Shaw says:")
+        st.write(response.choices[0].message.content)
 
 st.markdown("""
 ---
