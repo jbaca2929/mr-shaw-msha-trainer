@@ -22,26 +22,22 @@ mine_type = st.radio(
     ]
 )
 
-question_options = [
-    "What are my miners' rights?",
-    "What is fall protection?",
-    "What are the requirements for workplace examinations?",
-    "What PPE is required for miners?",
-    "Other – I'll type my own question"
-]
+preselected_question = st.radio(
+    "Or choose a common question:",
+    [
+        "What are my miners' rights?",
+        "What is fall protection?",
+        "What is required PPE?",
+        "What is a workplace examination?",
+        "What training do new miners need?"
+    ]
+)
 
-selected_question = st.selectbox("What is your MSHA safety question?", question_options)
-
-custom_question = ""
-if selected_question == "Other – I'll type my own question":
-    custom_question = st.text_input("Type your custom MSHA question here:")
-    final_question = custom_question
-else:
-    final_question = selected_question
-
+custom_question = st.text_input("Or type your own MSHA safety question:")
 submit = st.button("Ask Mr. Shaw")
 
-if submit and final_question:
+if submit and (custom_question or preselected_question):
+    user_question = custom_question if custom_question else preselected_question
     with st.spinner("Mr. Shaw is reviewing the CFR..."):
         system_prompt = f"""
         You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience.
@@ -51,16 +47,16 @@ if submit and final_question:
         The user is working under: {mine_type}
         """
 
-        completion = client.chat.completions.create(
+        response = client.chat.completions.create(
             model="gpt-4.1-turbo",
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": final_question}
+                {"role": "user", "content": user_question}
             ]
         )
 
         st.success("Mr. Shaw says:")
-        st.write(completion.choices[0].message.content)
+        st.write(response.choices[0].message.content)
 
 st.markdown("""
 ---
