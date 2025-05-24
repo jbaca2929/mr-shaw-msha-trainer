@@ -82,4 +82,13 @@ The miner is working under: {mine_type}.
                 st.warning("Mr. Shaw didn’t return any content. Try rephrasing your question.")
 
         except Exception as e:
-            st.error(f"Ope
+            st.error("OpenAI request failed: {}".format(e))
+            print("❌ Error parsing response: {}".format(e))
+
+# Disclaimer footer
+st.markdown("""
+---
+**Disclaimer:** Mr. Shaw is an AI-powered assistant. While he draws on official MSHA CFR sources to provide guidance, 
+his responses are not a substitute for formal training, legal advice, or direct MSHA consultation. 
+Always verify compliance with a certified instructor or MSHA official.
+""")
