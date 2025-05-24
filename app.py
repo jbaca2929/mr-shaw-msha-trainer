@@ -1,5 +1,6 @@
 import streamlit as st
 from openai import OpenAI
+import json
 
 # OpenAI Client for SDK v1.0+
 client = OpenAI(
@@ -44,13 +45,13 @@ in the format of a structured CFR-compliant training module—not a chatbot. Use
 
 Use this format:
 ------------------------------
-🗾 **Module Title: [Insert Topic]**
+🟦 **Module Title: [Insert Topic]**
 
 ### 📍 What to Do or Where to File
 - Bullet list of clear steps
 - Link to [MSHA.gov](https://www.msha.gov) if applicable
 
-### 📍 Information Needed
+### 📝 Information Needed
 - Bullet list of specific documentation, evidence, or info to gather
 
 📘 **CFR Reference**: Cite the specific CFR section or Mine Act section
@@ -62,22 +63,23 @@ The miner is working under: {mine_type}.
 
         try:
             response = client.chat.completions.create(
-                model="gpt-40",
+                model="gpt-3.5-turbo",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_question}
                 ]
             )
-            result = response.choices[0].message.content
-            st.success("Mr. Shaw says:")
-            st.markdown(result)
-        except Exception as e:
-            st.error(f"OpenAI request failed: {e}")
 
-# Disclaimer footer
-st.markdown("""
----
-**Disclaimer:** Mr. Shaw is an AI-powered assistant. While he draws on official MSHA CFR sources to provide guidance, 
-his responses are not a substitute for formal training, legal advice, or direct MSHA consultation. 
-Always verify compliance with a certified instructor or MSHA official.
-""")
+            raw = response.model_dump_json(indent=2)
+            print("📦 Raw OpenAI Response:\n", raw)
+
+            result = response.choices[0].message.content.strip()
+
+            if result:
+                st.success("Mr. Shaw says:")
+                st.markdown(result)
+            else:
+                st.warning("Mr. Shaw didn’t return any content. Try rephrasing your question.")
+
+        except Exception as e:
+            st.error(f"Ope
