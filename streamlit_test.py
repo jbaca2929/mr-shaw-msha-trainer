@@ -24,10 +24,7 @@ if st.button("Ask Mr. Shaw"):
                 response = requests.post(
                    "https://mr-shaw-msha-trainer.onrender.com/ask-mr-shaw",
                     headers={"Content-Type": "application/json"},
-                    json={
-                        "question": question,
-                        "mine_type": mine_type
-                    }
+                    json={"question": question, "mine_type": mine_type}
                 )
 
                 if response.status_code == 200:
