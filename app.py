@@ -19,13 +19,29 @@ mine_type = st.radio(
         "Part 46 – Sand & Gravel",
         "Part 48 – Surface Mine",
         "Part 48 – Underground Mine"
-    ]
+    ],
+    index=0
 )
 
-question = st.text_input("What is your MSHA safety question?")
+predefined_questions = [
+    "What are my miners' rights?",
+    "What is fall protection?",
+    "What are the workplace examination requirements?",
+    "What PPE is required for miners?",
+    "What are the training requirements under Part 46 or 48?"
+]
+
+question = st.selectbox("What is your MSHA safety question?", predefined_questions + ["Other – I'll type my own question"])
+
+custom_question = ""
+if question == "Other – I'll type my own question":
+    custom_question = st.text_input("Type your custom MSHA safety question:")
+
 submit = st.button("Ask Mr. Shaw")
 
-if submit and question:
+final_question = custom_question if question == "Other – I'll type my own question" else question
+
+if submit and final_question:
     with st.spinner("Mr. Shaw is reviewing the CFR..."):
         system_prompt = f"""
         You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience.
@@ -39,7 +55,7 @@ if submit and question:
             model="gpt-4.1-turbo",
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": question}
+                {"role": "user", "content": final_question}
             ]
         )
 
