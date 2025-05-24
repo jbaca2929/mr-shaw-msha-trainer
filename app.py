@@ -19,33 +19,33 @@ mine_type = st.radio(
         "Part 46 – Sand & Gravel",
         "Part 48 – Surface Mine",
         "Part 48 – Underground Mine"
-    ],
-    index=0
+    ]
 )
 
-predefined_questions = [
+question_options = [
     "What are my miners' rights?",
     "What is fall protection?",
-    "What are the workplace examination requirements?",
+    "What are the requirements for workplace examinations?",
     "What PPE is required for miners?",
-    "What are the training requirements under Part 46 or 48?"
+    "Other – I'll type my own question"
 ]
 
-question = st.selectbox("What is your MSHA safety question?", predefined_questions + ["Other – I'll type my own question"])
+selected_question = st.selectbox("What is your MSHA safety question?", question_options)
 
 custom_question = ""
-if question == "Other – I'll type my own question":
-    custom_question = st.text_input("Type your custom MSHA safety question:")
+if selected_question == "Other – I'll type my own question":
+    custom_question = st.text_input("Type your custom MSHA question here:")
+    final_question = custom_question
+else:
+    final_question = selected_question
 
 submit = st.button("Ask Mr. Shaw")
-
-final_question = custom_question if question == "Other – I'll type my own question" else question
 
 if submit and final_question:
     with st.spinner("Mr. Shaw is reviewing the CFR..."):
         system_prompt = f"""
         You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience.
-        Answer this safety question in detail based strictly on MSHA CFR guidelines.Not OSHA.
+        Answer this safety question in detail based strictly on MSHA CFR guidelines. Not OSHA.
         Never mention fall protection at 4 feet unless explicitly cited in CFR.
         Be clear, practical, and include citations when possible.
         The user is working under: {mine_type}
