@@ -24,7 +24,7 @@ print("Submit state:", submit)
 
 
     # Debug block
-    st.markdown("### 🪪 Debug info:")
+    st.markdown("### Debug info:")
     st.write("Mine type:", mine_type)
     st.write("Question entered:", user_question)
     st.write("Submit clicked:", submit)
