@@ -1,2 +1,4 @@
 flask
 openai>=1.0.0
+streamlit
+requests
