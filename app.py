@@ -26,9 +26,10 @@ if st.button("Ask Mr. Shaw"):
     else:
         st.info("Mr. Shaw is reviewing the CFR...")
 
-        if "Part 46" in mine_type:
-            allowed_cfr = "Only cite regulations from 30 CFR Part 46. Do not include references to Part 48 or Part 56."
-        elif "Underground" in mine_type:
-            allowed_cfr = "Only cite regulations from 30 CFR Part 48 Subpart A. Do not include references to Part 46 or Part 56."
-        else:
-            allowed_cfr = "Only cite regulations from 30 CFR Part 48 Subpart B. Do not include references to Part 46 or Part 56."
+       if "Part 46" in mine_type:
+    allowed_cfr = "Only cite regulations from 30 CFR Part 46. Do not include references to Part 48 or Part 56."
+elif "Underground" in mine_type:
+    allowed_cfr = "Only cite regulations from 30 CFR Part 48 Subpart A. Do not include references to Part 46 or Part 56."
+else:
+    allowed_cfr = "Only cite regulations from 30 CFR Part 48 Subpart B. Do not include references to Part 46 or Part 56."
+
