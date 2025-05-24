@@ -1,20 +1,13 @@
 import streamlit as st
 from openai import OpenAI
 
+# Load OpenAI client
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+# Set Streamlit page config (this MUST be first!)
 st.set_page_config(page_title="Mr. Shaw – MSHA Trainer")
 
-# Initialize OpenAI
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-# Debug: Check if key loaded from Streamlit secrets
-if "OPENAI_API_KEY" not in st.secrets:
-    st.error("❌ OPENAI_API_KEY not found in st.secrets.")
-else:
-    st.success("✅ API key loaded successfully from st.secrets.")
-
-
-
-# App layout
-
+# Title and description
 st.title("👷 Mr. Shaw – MSHA Trainer")
 st.write("MSHA-compliant safety guidance from a certified instructor—just ask.")
 
@@ -26,13 +19,14 @@ mine_type = st.radio("🔧 What type of mine are you working on?", [
 ])
 
 # User input
-user_question = st.text_input("Type your MSHA safety question:", placeholder="e.g., What are the rules for fall protection?")
+user_question = st.text_input("Type your MSHA safety question:")
 submit = st.button("🔵 Ask Mr. Shaw")
 
-# GPT logic
+# Handle question submit
 if submit and user_question:
-    with st.spinner("Mr. Shaw is reviewing the CFR..."):
+    with st.spinner("🔍 Mr. Shaw is reviewing the CFR..."):
 
+        # Build system prompt
         system_prompt = f"""
 You are Mr. Shaw, a certified MSHA instructor with 30+ years of field experience.
 Speak like you're training real miners—direct, practical, and legally correct.
@@ -45,21 +39,23 @@ Speak like you're training real miners—direct, practical, and legally correct.
 """
 
         try:
+            # GPT-4 call
             response = client.chat.completions.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_question}
                 ],
-                temperature=0.3,
-                timeout=20
+                temperature=0.3
             )
-            answer = response.choices[0].message.content.strip()
+            ai_output = response.choices[0].message.content.strip()
+
+            # Display answer
             st.success("✅ Mr. Shaw responded:")
-            st.markdown(answer)
+            st.write(ai_output)
 
         except Exception as e:
-            st.error("❌ GPT call failed:")
+            st.error("❌ GPT-4 failed:")
             st.code(str(e))
 
 # Footer
